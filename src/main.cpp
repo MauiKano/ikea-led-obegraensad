@@ -11,6 +11,13 @@
 #include <ESP8266WiFi.h>
 #endif
 
+
+#ifdef ESP32
+#define _TIMERINTERRUPT_LOGLEVEL_     0
+#include  <ESP32_New_TimerInterrupt.h>
+#define TIMER0_INTERVAL_MS        5000   // initialize timer 0 with 5000 milli seconds
+#endif
+
 #include "PluginManager.h"
 
 #include "plugins/BreakoutPlugin.h"
@@ -43,6 +50,12 @@ PluginManager pluginManager;
 SYSTEM_STATUS currentStatus = NONE;
 #ifdef ESP32
 WiFiManager wifiManager;
+#endif
+#ifdef ESP32
+int modePirState;
+int lastModePirState;
+ESP32Timer ITimer0(1);
+hw_timer_t *Screen_timer = timerBegin(0, 80, true);
 #endif
 
 unsigned long lastConnectionAttempt = 0;
@@ -80,6 +93,41 @@ void connectToWiFi()
 
   lastConnectionAttempt = millis();
 }
+// timer interupt stuff
+bool IRAM_ATTR TimerHandler(void * timerNo) {
+  //Screen.clear();
+  Serial.println("Timer ISR called");
+
+  Screen.setBrightness(2);  // dim the screen after  the timer expired
+  ITimer0.stopTimer(); // disable timer after one execution
+  return true;
+}
+
+void setupTimer() {
+  if (ITimer0.attachInterruptInterval(TIMER0_INTERVAL_MS * 1000, TimerHandler)) {
+    Serial.print("Starting  ITimer0 OK, millis() = ");
+    Serial.println(millis());
+    ITimer0.enableTimer();
+    ITimer0.stopTimer();
+    Screen.setBrightness(255);
+  } else
+     Serial.println("Can't set ITimer0. Select another freq. or timer");
+}
+
+void checkPir() {
+  modePirState = digitalRead(PIN_PIR);
+ // Serial.print("Pir="); Serial.println(modePirState);
+
+  if (modePirState != lastModePirState && modePirState == HIGH) {
+      Serial.println("Pir detected motion");
+      Screen.setBrightness(255);  // turn display on
+      ITimer0.restartTimer();
+  } else {
+     // ITimer0.disableTimer();
+    }
+  lastModePirState = modePirState;
+}
+
 #endif
 
 #ifdef ESP8266
@@ -146,6 +194,7 @@ void setup()
   pinMode(PIN_DATA, OUTPUT);
   pinMode(PIN_ENABLE, OUTPUT);
   pinMode(PIN_BUTTON, INPUT_PULLUP);
+  pinMode(PIN_PIR, INPUT);
 
 // server
 #ifdef ENABLE_SERVER
@@ -184,7 +233,9 @@ void setup()
 void loop()
 {
   pluginManager.runActivePlugin();
-
+#ifdef ESP32
+    checkPir();
+#endif
   if (WiFi.status() != WL_CONNECTED && millis() - lastConnectionAttempt > connectionInterval)
   {
     Serial.println("Lost connection to Wi-Fi. Reconnecting...");
