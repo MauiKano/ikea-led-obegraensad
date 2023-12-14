@@ -11,13 +11,6 @@
 #include <ESP8266WiFi.h>
 #endif
 
-
-#ifdef ESP32
-#define _TIMERINTERRUPT_LOGLEVEL_     0
-#include  <ESP32_New_TimerInterrupt.h>
-#define TIMER0_INTERVAL_MS        5000   // initialize timer 0 with 5000 milli seconds
-#endif
-
 #include "PluginManager.h"
 
 #include "plugins/BreakoutPlugin.h"
@@ -54,8 +47,10 @@ WiFiManager wifiManager;
 #ifdef ESP32
 int modePirState;
 int lastModePirState;
-ESP32Timer ITimer0(1);
-hw_timer_t *Screen_timer = timerBegin(0, 80, true);
+//ESP32Timer ITimer0(1);
+#define TIMER0_INTERVAL_MS        5000   // initialize timer 0 with 5000 milli seconds
+hw_timer_t *Pir_timer = timerBegin(1, 160, true); // use timer 1 for PIR handling, scale down to 1MHz
+
 #endif
 
 unsigned long lastConnectionAttempt = 0;
@@ -93,25 +88,20 @@ void connectToWiFi()
 
   lastConnectionAttempt = millis();
 }
-// timer interupt stuff
-bool IRAM_ATTR TimerHandler(void * timerNo) {
-  //Screen.clear();
+ void IRAM_ATTR PirEventHandler() {
   Serial.println("Timer ISR called");
-
   Screen.setBrightness(2);  // dim the screen after  the timer expired
-  ITimer0.stopTimer(); // disable timer after one execution
-  return true;
+  timerAlarmDisable(Pir_timer);// disable timer after one execution 
+  timerStop(Pir_timer);
 }
 
-void setupTimer() {
-  if (ITimer0.attachInterruptInterval(TIMER0_INTERVAL_MS * 1000, TimerHandler)) {
-    Serial.print("Starting  ITimer0 OK, millis() = ");
-    Serial.println(millis());
-    ITimer0.enableTimer();
-    ITimer0.stopTimer();
+void setupPirTimer() {
+
+    timerAttachInterrupt(Pir_timer, &PirEventHandler,  true);
+    timerAlarmWrite(Pir_timer, TIMER0_INTERVAL_MS*1000, true);
+    timerAlarmEnable(Pir_timer);
+    Serial.println("Starting  hw Pir Timer ");
     Screen.setBrightness(255);
-  } else
-     Serial.println("Can't set ITimer0. Select another freq. or timer");
 }
 
 void checkPir() {
@@ -121,7 +111,11 @@ void checkPir() {
   if (modePirState != lastModePirState && modePirState == HIGH) {
       Serial.println("Pir detected motion");
       Screen.setBrightness(255);  // turn display on
-      ITimer0.restartTimer();
+    //  ITimer0.restartTimer();
+    //  timerRestart(Pir_timer);
+      timerAlarmEnable(Pir_timer);
+      timerStart(Pir_timer);
+
   } else {
      // ITimer0.disableTimer();
     }
@@ -228,6 +222,11 @@ void setup()
 #endif
 
   pluginManager.init();
+#ifdef ESP32
+    //setupTimer();
+    setupPirTimer();
+#endif
+
 }
 
 void loop()
