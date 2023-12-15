@@ -28,8 +28,8 @@
 #ifdef ENABLE_SERVER
 #include "plugins/AnimationPlugin.h"
 #include "plugins/BigClockPlugin.h"
-#include "plugins/ClockPlugin.h"
-#include "plugins/TickingClockPlugin.h"
+//#include "plugins/ClockPlugin.h"
+//#include "plugins/TickingClockPlugin.h"
 #include "plugins/TickingSmallClockPlugin.h"
 #include "plugins/WeatherPlugin.h"
 #endif
@@ -55,7 +55,7 @@ int lastModePirState;
 
 #define TIMER0_INTERVAL_MS        120000   // initialize timer 1 with 5000 milli seconds
 hw_timer_t *Pir_timer = timerBegin(1, 80, true); // use timer 1 for PIR handling, scale down to 1MHz
-
+bool timerISRCalled = false;
 #endif
 
 unsigned long lastConnectionAttempt = 0;
@@ -94,7 +94,7 @@ void connectToWiFi()
   lastConnectionAttempt = millis();
 }
  void IRAM_ATTR PirEventHandler() {
-  Serial.println("Timer ISR called");
+  timerISRCalled = true; 
   Screen.setBrightness(1);  // dim the screen after  the timer expired
   timerAlarmDisable(Pir_timer);// disable timer after one execution 
   timerStop(Pir_timer);
@@ -109,6 +109,10 @@ void setupPirTimer() {
 }
 
 void checkPir() {
+  if (timerISRCalled) { // just simple print statement that should not happen in the ISR
+    Serial.println("Timer ISR called");
+    timerISRCalled = false;
+  }
   modePirState = digitalRead(PIN_PIR);
   if (modePirState != lastModePirState && modePirState == HIGH) {
       Serial.println("Pir detected motion");
@@ -215,10 +219,10 @@ void setup()
 
 #ifdef ENABLE_SERVER
   pluginManager.addPlugin(new BigClockPlugin());
-  pluginManager.addPlugin(new ClockPlugin());
+  //pluginManager.addPlugin(new ClockPlugin());
   pluginManager.addPlugin(new WeatherPlugin());
   pluginManager.addPlugin(new AnimationPlugin());
-  pluginManager.addPlugin(new TickingClockPlugin());
+  //pluginManager.addPlugin(new TickingClockPlugin());
   pluginManager.addPlugin(new TickingSmallClockPlugin());
 #endif
 
