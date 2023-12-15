@@ -29,7 +29,8 @@
 #include "plugins/AnimationPlugin.h"
 #include "plugins/BigClockPlugin.h"
 #include "plugins/ClockPlugin.h"
-//#include "plugins/TickingClockPlugin.h"
+#include "plugins/TickingClockPlugin.h"
+#include "plugins/TickingSmallClockPlugin.h"
 #include "plugins/WeatherPlugin.h"
 #endif
 
@@ -52,8 +53,8 @@ WiFiManager wifiManager;
 int modePirState;
 int lastModePirState;
 
-#define TIMER0_INTERVAL_MS        5000   // initialize timer 0 with 5000 milli seconds
-hw_timer_t *Pir_timer = timerBegin(1, 240, true); // use timer 1 for PIR handling, scale down to 1MHz
+#define TIMER0_INTERVAL_MS        120000   // initialize timer 1 with 5000 milli seconds
+hw_timer_t *Pir_timer = timerBegin(1, 80, true); // use timer 1 for PIR handling, scale down to 1MHz
 
 #endif
 
@@ -94,7 +95,7 @@ void connectToWiFi()
 }
  void IRAM_ATTR PirEventHandler() {
   Serial.println("Timer ISR called");
-  Screen.setBrightness(5);  // dim the screen after  the timer expired
+  Screen.setBrightness(1);  // dim the screen after  the timer expired
   timerAlarmDisable(Pir_timer);// disable timer after one execution 
   timerStop(Pir_timer);
 }
@@ -217,15 +218,16 @@ void setup()
   pluginManager.addPlugin(new ClockPlugin());
   pluginManager.addPlugin(new WeatherPlugin());
   pluginManager.addPlugin(new AnimationPlugin());
-  //pluginManager.addPlugin(new TickingClockPlugin());
+  pluginManager.addPlugin(new TickingClockPlugin());
+  pluginManager.addPlugin(new TickingSmallClockPlugin());
 #endif
 
   pluginManager.init();
 #ifdef ESP32
     setupPirTimer();
 #endif
-  Messages.add(WiFi.localIP().toString().c_str());
-  Messages.add("Wellcome");
+ // Messages.add(WiFi.localIP().toString().c_str());
+  Messages.add("Wellcome :-)");
 }
 
 void loop()
