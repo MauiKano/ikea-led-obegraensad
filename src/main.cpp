@@ -22,11 +22,14 @@
 #include "plugins/RainPlugin.h"
 #include "plugins/SnakePlugin.h"
 #include "plugins/StarsPlugin.h"
+#include "plugins/FiveLetterWordsPlugin.h"
+
 
 #ifdef ENABLE_SERVER
 #include "plugins/AnimationPlugin.h"
 #include "plugins/BigClockPlugin.h"
 #include "plugins/ClockPlugin.h"
+//#include "plugins/TickingClockPlugin.h"
 #include "plugins/WeatherPlugin.h"
 #endif
 
@@ -35,6 +38,7 @@
 #include "screen.h"
 #include "secrets.h"
 #include "websocket.h"
+#include "messages.h"
 
 unsigned long previousMillis = 0;
 unsigned long interval = 30000;
@@ -47,9 +51,9 @@ WiFiManager wifiManager;
 #ifdef ESP32
 int modePirState;
 int lastModePirState;
-//ESP32Timer ITimer0(1);
+
 #define TIMER0_INTERVAL_MS        5000   // initialize timer 0 with 5000 milli seconds
-hw_timer_t *Pir_timer = timerBegin(1, 160, true); // use timer 1 for PIR handling, scale down to 1MHz
+hw_timer_t *Pir_timer = timerBegin(1, 240, true); // use timer 1 for PIR handling, scale down to 1MHz
 
 #endif
 
@@ -59,7 +63,7 @@ const unsigned long connectionInterval = 10000;
 #ifdef ESP32
 void connectToWiFi()
 {
-
+  //wifiManager.resetSettings(); // wipe stored credentials for testing
   // if a WiFi setup AP was started, reboot is required to clear routes
   bool wifiWebServerStarted = false;
   wifiManager.setWebServerCallback(
@@ -90,13 +94,12 @@ void connectToWiFi()
 }
  void IRAM_ATTR PirEventHandler() {
   Serial.println("Timer ISR called");
-  Screen.setBrightness(2);  // dim the screen after  the timer expired
+  Screen.setBrightness(5);  // dim the screen after  the timer expired
   timerAlarmDisable(Pir_timer);// disable timer after one execution 
   timerStop(Pir_timer);
 }
 
 void setupPirTimer() {
-
     timerAttachInterrupt(Pir_timer, &PirEventHandler,  true);
     timerAlarmWrite(Pir_timer, TIMER0_INTERVAL_MS*1000, true);
     timerAlarmEnable(Pir_timer);
@@ -106,19 +109,12 @@ void setupPirTimer() {
 
 void checkPir() {
   modePirState = digitalRead(PIN_PIR);
- // Serial.print("Pir="); Serial.println(modePirState);
-
   if (modePirState != lastModePirState && modePirState == HIGH) {
       Serial.println("Pir detected motion");
       Screen.setBrightness(255);  // turn display on
-    //  ITimer0.restartTimer();
-    //  timerRestart(Pir_timer);
       timerAlarmEnable(Pir_timer);
       timerStart(Pir_timer);
-
-  } else {
-     // ITimer0.disableTimer();
-    }
+  }
   lastModePirState = modePirState;
 }
 
@@ -213,24 +209,29 @@ void setup()
   pluginManager.addPlugin(new CirclePlugin());
   pluginManager.addPlugin(new RainPlugin());
   pluginManager.addPlugin(new FireworkPlugin());
+  pluginManager.addPlugin(new FiveLetterWordsPlugin());
+
 
 #ifdef ENABLE_SERVER
   pluginManager.addPlugin(new BigClockPlugin());
   pluginManager.addPlugin(new ClockPlugin());
   pluginManager.addPlugin(new WeatherPlugin());
   pluginManager.addPlugin(new AnimationPlugin());
+  //pluginManager.addPlugin(new TickingClockPlugin());
 #endif
 
   pluginManager.init();
 #ifdef ESP32
-    //setupTimer();
     setupPirTimer();
 #endif
-
+  Messages.add(WiFi.localIP().toString().c_str());
+  Messages.add("Wellcome");
 }
 
 void loop()
 {
+  Messages.scrollMessageEveryMinute();
+
   pluginManager.runActivePlugin();
 #ifdef ESP32
     checkPir();

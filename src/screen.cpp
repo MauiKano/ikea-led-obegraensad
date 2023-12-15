@@ -299,6 +299,68 @@ void Screen_::drawWeather(int x, int y, int weather, uint8_t brightness)
   this->drawCharacter(x, y, this->readBytes(weatherIcons[weather]), 16, brightness);
 }
 
+void Screen_::scrollText(std::string text, int delayTime, uint8_t brightness)
+{
+  int textWidth = text.length() * 6; // Assuming 6 pixels width for each character + space
+
+  for (int i = -ROWS; i < textWidth; i++)
+  { // start with negarive screen size, so out of screen to the right
+
+    this->clear();
+
+    for (std::size_t strPos = 0; strPos < text.length(); strPos++)
+    { // since i need the pos to calculate, this is the best way to iterate here
+
+      int xPos = strPos * 6 - i;
+
+      if (xPos > -6 && xPos < ROWS)
+      { // so are we somewhere on screen with the char?
+        // yes tsystem6x7 charset starts wis space (char32)
+        Screen.drawCharacter(xPos, 4, Screen.readBytes(system6x7[text[strPos]]), 8);
+      }
+    }
+
+    delay(delayTime);
+  }
+}
+
+void Screen_::scrollGraph(std::vector<int> graph, int miny, int maxy, int delayTime, uint8_t brightness)
+{
+  if (graph.size() <= 0) {
+    // Handle empty graph
+    return;
+  }
+
+  for (int i = -ROWS; i < (int)graph.size(); i++)  //if somebody cares: that int cast cost me >1h
+  {
+    this->clear();
+    
+    int y1 = -999; // previous point.  
+
+    for (int x = 0; x < ROWS; x++)
+    {
+      int index = i + x;
+      if (index >= 0 && index < graph.size())
+      {    
+
+        int y2 = ROWS-((graph[index] - miny+1) * ROWS) / (maxy - miny +1) ;
+        //if we are not first pixel on screen
+        //and the distance is < 6, so we do not bridge too big gaps
+        if(x>0 && index>0 && abs(y2-y1)<6) 
+        {  
+          this->drawLine(x-1,y1,x,y2,1,brightness);
+        }
+        else //first pixel on graph/on screen
+        {
+          this->setPixel(x, y2, 1, brightness);
+        }
+        y1 = y2; // this value is next values previous value 
+      }
+    }
+    delay(delayTime);
+  }
+}
+
 Screen_ &Screen_::getInstance()
 {
   static Screen_ instance;

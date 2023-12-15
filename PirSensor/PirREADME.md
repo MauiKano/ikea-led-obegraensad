@@ -9,7 +9,7 @@ The IKEA OBEGRÄNSAD LED Wall Lamp and the great Hack/Mod from https://github.co
 
 ## Features
 
-- uses a second hw_timer of the ESP
+- uses a second hw_timer of the ESP. The code sofar does not contain statements for ESP8266
 - uses one more GPIP port
 - uses the widely and cheap available PIR sensor SR602. This sensor requires GND, VCC (5V works well) and has a 0/3.3V output that directly connects to a GPIO
 - a simple STL model for 3D print of a sensor mount is provided
