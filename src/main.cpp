@@ -95,7 +95,7 @@ void connectToWiFi()
 }
  void IRAM_ATTR PirEventHandler() {
   timerISRCalled = true; 
-  Screen.setBrightness(10);  // dim the screen after  the timer expired
+  Screen.setBrightness(5);  // dim the screen after  the timer expired
   timerAlarmDisable(Pir_timer);// disable timer after one execution 
   timerStop(Pir_timer);
 }
