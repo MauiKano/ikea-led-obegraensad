@@ -53,8 +53,8 @@ void TickingSmallClockPlugin::loop()
     if (previousHour != timeinfo.tm_hour || previousMinutes != timeinfo.tm_min)
     {
       Screen.clear();
-      Screen.drawNumbers(3, 2, {(timeinfo.tm_hour - timeinfo.tm_hour % 10) / 10, timeinfo.tm_hour % 10});
-      Screen.drawNumbers(3, 8, {(timeinfo.tm_min - timeinfo.tm_min % 10) / 10, timeinfo.tm_min % 10});
+      Screen.drawNumbers(3, 2, {(timeinfo.tm_hour - timeinfo.tm_hour % 10) / 10, timeinfo.tm_hour % 10},128);
+      Screen.drawNumbers(3, 8, {(timeinfo.tm_min - timeinfo.tm_min % 10) / 10, timeinfo.tm_min % 10}),128;
       previousMinutes = timeinfo.tm_min;
       previousHour = timeinfo.tm_hour;
     }
@@ -69,7 +69,9 @@ void TickingSmallClockPlugin::loop()
          Screen.setPixel(XPosSeconds(timeinfo.tm_sec),
                          YPosSeconds(timeinfo.tm_sec), 
                          1,
-                         Screen.getCurrentBrightness());
+          //               Screen.getCurrentBrightness());
+                         255);
+
       previousSecond =  timeinfo.tm_sec;
     }
   }

@@ -53,8 +53,8 @@ WiFiManager wifiManager;
 int modePirState;
 int lastModePirState;
 
-#define TIMER0_INTERVAL_MS        120000   // initialize timer 1 with 5000 milli seconds
-hw_timer_t *Pir_timer = timerBegin(1, 80, true); // use timer 1 for PIR handling, scale down to 1MHz
+#define TIMER0_INTERVAL_MS        15   // initialize timer 1 with 5000 milli seconds
+hw_timer_t *Pir_timer = timerBegin(1, ((256*256) - 1), true); // use timer 1 for PIR handling, scale down to 1MHz
 bool timerISRCalled = false;
 #endif
 
@@ -95,7 +95,7 @@ void connectToWiFi()
 }
  void IRAM_ATTR PirEventHandler() {
   timerISRCalled = true; 
-  Screen.setBrightness(1);  // dim the screen after  the timer expired
+  Screen.setBrightness(10);  // dim the screen after  the timer expired
   timerAlarmDisable(Pir_timer);// disable timer after one execution 
   timerStop(Pir_timer);
 }
@@ -228,7 +228,7 @@ void setup()
 
   pluginManager.init();
 #ifdef ESP32
-    setupPirTimer();
+  setupPirTimer();
 #endif
  // Messages.add(WiFi.localIP().toString().c_str());
   Messages.add("Wellcome :-)");
@@ -240,7 +240,7 @@ void loop()
 
   pluginManager.runActivePlugin();
 #ifdef ESP32
-    checkPir();
+   checkPir();
 #endif
   if (WiFi.status() != WL_CONNECTED && millis() - lastConnectionAttempt > connectionInterval)
   {
