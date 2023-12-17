@@ -29,7 +29,7 @@
 #include "plugins/AnimationPlugin.h"
 #include "plugins/BigClockPlugin.h"
 //#include "plugins/ClockPlugin.h"
-//#include "plugins/TickingClockPlugin.h"
+#include "plugins/TickingClockPlugin.h"
 #include "plugins/TickingSmallClockPlugin.h"
 #include "plugins/WeatherPlugin.h"
 #endif
@@ -222,7 +222,7 @@ void setup()
   //pluginManager.addPlugin(new ClockPlugin());
   pluginManager.addPlugin(new WeatherPlugin());
   pluginManager.addPlugin(new AnimationPlugin());
-  //pluginManager.addPlugin(new TickingClockPlugin());
+  pluginManager.addPlugin(new TickingClockPlugin());
   pluginManager.addPlugin(new TickingSmallClockPlugin());
 #endif
 
