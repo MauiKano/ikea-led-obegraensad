@@ -10,10 +10,10 @@
 
 class FiveLetterWordsPlugin : public Plugin {
 private:
-    std::unordered_set<std::string> wordList;
-    void addWord(const std::string& word);
-    void removeWord(const std::string& word);
-    bool searchWord(const std::string& word) const;
+  //  std::unordered_set<std::string> wordList;
+  //  void addWord(const std::string& word);
+  //  void removeWord(const std::string& word);
+  //  bool searchWord(const std::string& word) const;
     std::string getRandomWord();
 
 
