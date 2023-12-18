@@ -1,5 +1,4 @@
 #include "plugins/TelegramBotPlugin.h"
-//#include "messages.h"
 #include "secrets.h"
 #include "messages.h"
 
@@ -7,7 +6,7 @@ TelegramBotPlugin::TelegramBotPlugin() : myBot(client, 2048) {}
 ///TelegramBotPlugin::TelegramBotPlugin() : myBot(WiFiClientSecure(), 2048) {}
 
 void TelegramBotPlugin::setup() {
-        client = WiFiClientSecure(); // Initialize WiFiClientSecure object
+   //     client = WiFiClientSecure(); // Initialize WiFiClientSecure object
         client.setCACert(telegram_cert);
 
         myBot.setTelegramToken(BOT_TOKEN);
@@ -27,7 +26,7 @@ void TelegramBotPlugin::setup() {
 void TelegramBotPlugin::loop() {
     //TBMessage msg;
     this->handleIncomingMessages(msg);
-     delay(2000);
+ //    delay(20);
 }
 
 const char* TelegramBotPlugin::getName() const {
@@ -43,12 +42,9 @@ void TelegramBotPlugin::websocketHook(DynamicJsonDocument &request) {
 }
 
  void TelegramBotPlugin::handleIncomingMessages(TBMessage msg) {
-  //String chatId = String(msg.chatId);
-  //String text = msg.text;
-  //String lastMessage;
+ 
   // if there is an incoming message...
   if (myBot.getNewMessage(msg)) {
-  //  String msgText = msg.text;
 
  //   if (msgText.equals("/message")) {   
     if (msg.text.equals("/message")) {                   
@@ -74,7 +70,6 @@ void TelegramBotPlugin::websocketHook(DynamicJsonDocument &request) {
       myBot.sendMessage(msg, reply);                    // and send it
     }
   }
-
 }
 
 

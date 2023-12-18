@@ -59,6 +59,7 @@ int lastModePirState;
 #define TIMER0_INTERVAL_MS        15   // initialize timer 1 with 5000 milli seconds
 hw_timer_t *Pir_timer = timerBegin(1, ((256*256) - 1), true); // use timer 1 for PIR handling, scale down to 1MHz
 bool timerISRCalled = false;
+Plugin *alwaysRunPlugin;  // used to always run the TelegramBot in the main loop
 #endif
 
 unsigned long lastConnectionAttempt = 0;
@@ -227,8 +228,9 @@ void setup()
   pluginManager.addPlugin(new AnimationPlugin());
   pluginManager.addPlugin(new TickingClockPlugin());
   pluginManager.addPlugin(new TickingSmallClockPlugin());
-  pluginManager.addPlugin(new TelegramBotPlugin());
-
+ // pluginManager.addPlugin(new TelegramBotPlugin());
+  alwaysRunPlugin = new TelegramBotPlugin();
+  alwaysRunPlugin->setup();
 #endif
 
   pluginManager.init();
@@ -244,6 +246,9 @@ void loop()
   Messages.scrollMessageEveryMinute();
 
   pluginManager.runActivePlugin();
+  if (alwaysRunPlugin) {
+     alwaysRunPlugin->loop();
+  }
 #ifdef ESP32
    checkPir();
 #endif
