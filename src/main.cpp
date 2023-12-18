@@ -32,6 +32,8 @@
 #include "plugins/TickingClockPlugin.h"
 #include "plugins/TickingSmallClockPlugin.h"
 #include "plugins/WeatherPlugin.h"
+#include "plugins/TelegramBotPlugin.h"
+
 #endif
 
 #include "asyncwebserver.h"
@@ -48,6 +50,7 @@ PluginManager pluginManager;
 SYSTEM_STATUS currentStatus = NONE;
 #ifdef ESP32
 WiFiManager wifiManager;
+
 #endif
 #ifdef ESP32
 int modePirState;
@@ -224,6 +227,8 @@ void setup()
   pluginManager.addPlugin(new AnimationPlugin());
   pluginManager.addPlugin(new TickingClockPlugin());
   pluginManager.addPlugin(new TickingSmallClockPlugin());
+  pluginManager.addPlugin(new TelegramBotPlugin());
+
 #endif
 
   pluginManager.init();

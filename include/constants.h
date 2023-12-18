@@ -37,7 +37,7 @@
 #define ROWS 16
 
 // set your city or coords (https://github.com/chubin/wttr.in)
-#define WEATHER_LOCATION "Zürich"
+#define WEATHER_LOCATION "Zuerich"
 
 // name of WiFi created by the device if no known WiFi is available
 #define WIFI_MANAGER_SSID "Ikea Display Setup WiFi"
