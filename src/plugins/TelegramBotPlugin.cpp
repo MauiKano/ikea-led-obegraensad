@@ -73,6 +73,11 @@ void TelegramBotPlugin::websocketHook(DynamicJsonDocument &request) {
       myBot.sendMessage(msg, "Message cleared.");
       Messages.remove();
     }
+    else if (msg.text.equals("/next")) {           // if the received message is "LIGHT OFF"...
+      myBot.sendMessage(msg, "Switch to next mode");
+      pluginManager.activateNextPlugin();
+      myBot.sendMessage(msg,pluginManager.getActivePlugin()->getName());
+    }
     else if (awaitingMessage) {
      awaitingMessage = false;
      lastMessage = msg.text;
@@ -84,7 +89,7 @@ void TelegramBotPlugin::websocketHook(DynamicJsonDocument &request) {
       String reply;
       reply = "Welcome " ;
       reply += msg.sender.username + msg.sender.firstName + msg.sender.lastName+msg.sender.id;
-      reply += ".\nTry /message or /clear ";
+      reply += ".\nTry /message , /clear or /next";
       myBot.sendMessage(msg, reply);                    // and send it
     }
   }

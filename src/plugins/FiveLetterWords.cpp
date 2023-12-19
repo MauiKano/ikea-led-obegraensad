@@ -23,7 +23,7 @@ void FiveLetterWordsPlugin::setup() {
 
 void FiveLetterWordsPlugin::loop() {
       Messages.add(getRandomWord());
-      delay(2000);
+  //    delay(2);
 }
 
 const char* FiveLetterWordsPlugin::getName() const {
