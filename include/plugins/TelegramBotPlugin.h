@@ -14,6 +14,10 @@ private:
     AsyncTelegram2 myBot;
     String lastMessage;
     TBMessage msg;
+    bool awaitingMessage = false;
+    std::vector<int> authorizedUserIds; // Vector for dynamic IDs
+    std::vector<std::string> authorizedUsernames; // Vector for dynamic names
+    bool isAuthorized = false;
 
 public:
 

@@ -10,23 +10,18 @@ void TelegramBotPlugin::setup() {
         client.setCACert(telegram_cert);
 
         myBot.setTelegramToken(BOT_TOKEN);
-        if (myBot.begin())
+        if (myBot.begin()) {
            Serial.println("Telegram Bot Connection OK");
+           authorizedUserIds.push_back(TGID1);
+           authorizedUsernames.push_back(TGNAME1);
+
+        }
         else
            Serial.println("Telegram Bot Connectionk NOK");
-/*
-    myBot.onUpdate([](AsyncTelegramMessage message) {
-        Serial.print("Received message: ");
-        Serial.println(message.text);
-        this->handleIncomingMessages(message);
-    });
-    */
-    }
+}
 
 void TelegramBotPlugin::loop() {
-    //TBMessage msg;
     this->handleIncomingMessages(msg);
- //    delay(20);
 }
 
 const char* TelegramBotPlugin::getName() const {
@@ -42,34 +37,59 @@ void TelegramBotPlugin::websocketHook(DynamicJsonDocument &request) {
 }
 
  void TelegramBotPlugin::handleIncomingMessages(TBMessage msg) {
- 
-  // if there is an incoming message...
+
   if (myBot.getNewMessage(msg)) {
+
+    // check if we find the userID in the list of accepted users
+    isAuthorized = false;
+    for (int i = 0; i < sizeof(authorizedUserIds) / sizeof(authorizedUserIds[0]); i++) {
+        if (msg.sender.id == authorizedUserIds[i]) {
+            isAuthorized = true;
+            break;
+        }
+    }
+
+    // if not found check for user name
+    if (!isAuthorized) {
+        for (int i = 0; i < sizeof(authorizedUsernames) / sizeof(authorizedUsernames[0]); i++) {
+            if (msg.sender.username.c_str() == authorizedUsernames[i]) {
+                isAuthorized = true;
+                break;
+            }
+          }
+     }
+
+  if (isAuthorized) { // we process the request
+
+  // if there is an incoming message...
 
  //   if (msgText.equals("/message")) {   
     if (msg.text.equals("/message")) {                   
         lastMessage = ""; // Clear any previous messages
+        awaitingMessage = true;
          myBot.sendMessage(msg, "Please enter your message:");
     }
     else if (msg.text.equals("/clear")) {           // if the received message is "LIGHT OFF"...
       myBot.sendMessage(msg, "Message cleared.");
       Messages.remove();
     }
-    else if (lastMessage == "") {
+    else if (awaitingMessage) {
+     awaitingMessage = false;
      lastMessage = msg.text;
-     myBot.sendMessage(msg, "Message received: " + lastMessage);
-  //   Messages.add(":-| :-)");
+     myBot.sendMessage(msg, "Message received and\nwill be displayed on panel:\n" + lastMessage);
      Messages.add(std::string(lastMessage.c_str()), -1); // repeat=-1, e.g. infinite repeat every minute
    }
     else {                                              // otherwise...
       // generate the message for the sender
       String reply;
       reply = "Welcome " ;
-      reply += msg.sender.username;
+      reply += msg.sender.username + msg.sender.firstName + msg.sender.lastName+msg.sender.id;
       reply += ".\nTry /message or /clear ";
       myBot.sendMessage(msg, reply);                    // and send it
     }
   }
-}
-
-
+ else {    // Not an authorized user, send a message indicating unauthorized access
+        myBot.sendMessage(msg, "Unauthorized access. You are not allowed to perform this action.");
+    }
+  }
+ }
