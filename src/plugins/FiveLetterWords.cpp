@@ -18,12 +18,18 @@ FiveLetterWordsPlugin::FiveLetterWordsPlugin() {
 }
 
 void FiveLetterWordsPlugin::setup() {
+        previousMs = 0;
     // Setup logic for your plugin
 }
 
 void FiveLetterWordsPlugin::loop() {
-      Messages.add(getRandomWord());
-  //    delay(2);
+
+        // Check if the current minute is different from the previous minute
+        if ((millis() - previousMs) > 4000) // wait at least 3 seconds between displaying words
+        {
+           Messages.add(getRandomWord());
+           previousMs = millis();
+        } 
 }
 
 const char* FiveLetterWordsPlugin::getName() const {

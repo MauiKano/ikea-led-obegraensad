@@ -77,7 +77,7 @@ void Messages_::scrollMessageEveryMinute()
         if (timeinfo.tm_min != previousMinute)
         {
             // Call the scroll function to display messages
-            scroll();
+            scroll(); 
 
             // Update the previous minute to the current minute
             previousMinute = timeinfo.tm_min;

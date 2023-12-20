@@ -56,7 +56,7 @@ WiFiManager wifiManager;
 int modePirState;
 int lastModePirState;
 
-#define TIMER0_INTERVAL_MS        15   // initialize timer 1 with 5000 milli seconds
+#define TIMER0_INTERVAL_MS        60   // initialize timer 1 with 60 seconds
 hw_timer_t *Pir_timer = timerBegin(1, ((256*256) - 1), true); // use timer 1 for PIR handling, scale down to 1MHz
 bool timerISRCalled = false;
 Plugin *alwaysRunPlugin;  // used to always run the TelegramBot in the main loop
@@ -99,7 +99,7 @@ void connectToWiFi()
 }
  void IRAM_ATTR PirEventHandler() {
   timerISRCalled = true; 
-  Screen.setBrightness(5);  // dim the screen after  the timer expired
+  Screen.setBrightness(1);  // dim the screen after  the timer expired
   timerAlarmDisable(Pir_timer);// disable timer after one execution 
   timerStop(Pir_timer);
 }
@@ -222,7 +222,7 @@ void setup()
 
 
 #ifdef ENABLE_SERVER
-  pluginManager.addPlugin(new BigClockPlugin());
+  //pluginManager.addPlugin(new BigClockPlugin());
   //pluginManager.addPlugin(new ClockPlugin());
   pluginManager.addPlugin(new WeatherPlugin());
   pluginManager.addPlugin(new AnimationPlugin());

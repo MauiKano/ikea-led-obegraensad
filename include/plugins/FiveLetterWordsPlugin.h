@@ -15,6 +15,7 @@ private:
   //  void removeWord(const std::string& word);
   //  bool searchWord(const std::string& word) const;
     std::string getRandomWord();
+    int previousMs;
 
 
 public:
