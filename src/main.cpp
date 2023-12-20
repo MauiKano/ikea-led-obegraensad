@@ -22,6 +22,7 @@
 #include "plugins/RainPlugin.h"
 #include "plugins/SnakePlugin.h"
 #include "plugins/StarsPlugin.h"
+#include "plugins/PongClockPlugin.h"
 #include "plugins/FiveLetterWordsPlugin.h"
 
 
@@ -218,6 +219,7 @@ void setup()
   pluginManager.addPlugin(new CirclePlugin());
   pluginManager.addPlugin(new RainPlugin());
   pluginManager.addPlugin(new FireworkPlugin());
+  pluginManager.addPlugin(new PongClockPlugin());
   pluginManager.addPlugin(new FiveLetterWordsPlugin());
 
 
