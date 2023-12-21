@@ -110,6 +110,10 @@ void PluginManager::setupActivePlugin()
 
 int modeButtonState = 0;
 int lastModeButtonState = 1;
+#ifdef FREKVENS
+ int pwrButtonState = 0;
+ int lastPwrButtonState = 1;
+ #endif
 
 void PluginManager::runActivePlugin()
 {
@@ -121,7 +125,19 @@ void PluginManager::runActivePlugin()
             pluginManager.activateNextPlugin();
         }
         lastModeButtonState = modeButtonState;
+
+        #ifdef FREKVENS
+         pwrButtonState = digitalRead(PIN_POWER);
+         if (pwrButtonState != lastPwrButtonState && pwrButtonState == HIGH)
+         {
+             pluginManager.setActivePlugin("Blank");
+             pluginManager.runActivePlugin();
+         }
+         lastPwrButtonState = pwrButtonState;
+       #endif    
+
         currentStatus = NONE;
+
     }
     if (activePlugin)
     {

@@ -195,6 +195,9 @@ void setup()
   pinMode(PIN_ENABLE, OUTPUT);
   pinMode(PIN_BUTTON, INPUT_PULLUP);
   pinMode(PIN_PIR, INPUT);
+  #ifdef FREKVENS
+   pinMode(PIN_POWER, INPUT_PULLUP);
+ #endif
 
 // server
 #ifdef ENABLE_SERVER
@@ -221,7 +224,7 @@ void setup()
   pluginManager.addPlugin(new FireworkPlugin());
   pluginManager.addPlugin(new PongClockPlugin());
   pluginManager.addPlugin(new FiveLetterWordsPlugin());
-
+  // pluginManager.addPlugin(new BlankPlugin());
 
 #ifdef ENABLE_SERVER
   //pluginManager.addPlugin(new BigClockPlugin());

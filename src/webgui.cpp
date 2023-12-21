@@ -1,4 +1,5 @@
 #include "webgui.h"
+#include "screen.h"
 
 #ifdef ENABLE_SERVER
 
@@ -405,5 +406,7 @@ void startGui(AsyncWebServerRequest *request)
   response->addHeader("Content-Encoding", "gzip");
   request->send(response);
 }
+
+
 
 #endif

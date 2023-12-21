@@ -1,7 +1,7 @@
 #include "screen.h"
 #include <SPI.h>
 
-#define TIMER_INTERVAL_US 200 // 200
+#define TIMER_INTERVAL_US 200
 #define GRAY_LEVELS 64 // must be a power of two
 
 using namespace std;
@@ -28,8 +28,7 @@ void Screen_::setRenderBuffer(const uint8_t *renderBuffer, bool grays)
   {
     for (int i = 0; i < ROWS * COLS; i++)
     {
-      this->renderBuffer_[i] = renderBuffer[i] * 255; // original line
-       ///this->renderBuffer_[i] = (renderBuffer[i] * 255) >> 8;
+      this->renderBuffer_[i] = renderBuffer[i] * 255;
     }
   }
 }
@@ -145,7 +144,7 @@ void Screen_::setup()
 
 #ifdef ESP32
   SPI.begin(PIN_CLOCK, 34, PIN_DATA, 25); // SCLK, MISO, MOSI, SS
-  SPI.beginTransaction(SPISettings(10000000, MSBFIRST, SPI_MODE0));  //10000000
+  SPI.beginTransaction(SPISettings(10000000, MSBFIRST, SPI_MODE0));
 
   hw_timer_t *Screen_timer = timerBegin(0, 80, true);
   timerAttachInterrupt(Screen_timer, &onScreenTimer, true);
@@ -327,35 +326,36 @@ void Screen_::scrollText(std::string text, int delayTime, uint8_t brightness)
 
 void Screen_::scrollGraph(std::vector<int> graph, int miny, int maxy, int delayTime, uint8_t brightness)
 {
-  if (graph.size() <= 0) {
+  if (graph.size() <= 0)
+  {
     // Handle empty graph
     return;
   }
 
-  for (int i = -ROWS; i < (int)graph.size(); i++)  //if somebody cares: that int cast cost me >1h
+  for (int i = -ROWS; i < (int)graph.size(); i++)
   {
     this->clear();
-    
-    int y1 = -999; // previous point.  
+
+    int y1 = -999; // previous point.
 
     for (int x = 0; x < ROWS; x++)
     {
       int index = i + x;
       if (index >= 0 && index < graph.size())
-      {    
+      {
 
-        int y2 = ROWS-((graph[index] - miny+1) * ROWS) / (maxy - miny +1) ;
-        //if we are not first pixel on screen
-        //and the distance is < 6, so we do not bridge too big gaps
-        if(x>0 && index>0 && abs(y2-y1)<6) 
-        {  
-          this->drawLine(x-1,y1,x,y2,1,brightness);
+        int y2 = ROWS - ((graph[index] - miny + 1) * ROWS) / (maxy - miny + 1);
+        // if we are not first pixel on screen
+        // and the distance is < 6, so we do not bridge too big gaps
+        if (x > 0 && index > 0 && abs(y2 - y1) < 6)
+        {
+          this->drawLine(x - 1, y1, x, y2, 1, brightness);
         }
-        else //first pixel on graph/on screen
+        else // first pixel on graph/on screen
         {
           this->setPixel(x, y2, 1, brightness);
         }
-        y1 = y2; // this value is next values previous value 
+        y1 = y2; // this value is next values previous value
       }
     }
     delay(delayTime);

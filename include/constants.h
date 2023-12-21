@@ -2,6 +2,9 @@
 
 // disable if you do not want to have online functionality
 #define ENABLE_SERVER
+// enable to use led mapping for Frekvens instead of Obegränsad
+ // https://www.ikea.com/de/de/p/frekvens-multibeleuchtung-led-schwarz-30420354/ 
+ //#define FREKVENS
 
 #ifdef ESP32
 #define PIN_ENABLE GPIO_NUM_4// 7
@@ -11,6 +14,11 @@
 #define PIN_BUTTON GPIO_NUM_27 // 1
 #define PIN_PIR    GPIO_NUM_0 // 1
 #endif
+
+#ifdef FREKVENS
+ #define PIN_POWER GPIO_NUM_26
+ #define MIC_INPUT GPIO_NUM_36
+ #endif
 
 #ifdef ESP8266
 #define PIN_ENABLE 16
