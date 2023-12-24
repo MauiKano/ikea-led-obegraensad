@@ -73,10 +73,23 @@ void TelegramBotPlugin::websocketHook(DynamicJsonDocument &request) {
       myBot.sendMessage(msg, "Message cleared.");
       Messages.remove();
     }
+    /*
     else if (msg.text.equals("/poweroff")) {           // if the received message is "LIGHT OFF"...
       myBot.sendMessage(msg, "Turn power off");
       currentStatus = POWEROFF;
+      Serial.println("Poweroff messsage received, set status from NONE to POWEROFF");
+      Messages.add("Goodbye :-(");
+      Messages.scroll();
+      Screen.clear();
     }
+    else if (msg.text.equals("/poweron")) {           // if the received message is "LIGHT OFF"...
+      myBot.sendMessage(msg, "Turn power on");
+      currentStatus = NONE;
+      Serial.println("Poweron message received, set status from POWEROFF to NONE");
+      Messages.add("Wellcome back");
+      Messages.scroll();
+    }
+    */
     else if (msg.text.equals("/next")) {           // if the received message is "LIGHT OFF"...
       myBot.sendMessage(msg, "Switch to next mode");
       pluginManager.activateNextPlugin();
@@ -92,13 +105,19 @@ void TelegramBotPlugin::websocketHook(DynamicJsonDocument &request) {
       // generate the message for the sender
       String reply;
       reply = "Welcome " ;
-      reply += msg.sender.username + msg.sender.firstName + msg.sender.lastName+msg.sender.id;
-      reply += ".\nTry /message , /clear, /next or /poweroff";
+      reply += msg.sender.username + " " + msg.sender.firstName + " " + msg.sender.lastName + " " + msg.sender.id;
+///reply += ".\nTry /message, /clear, /next, /poweroff or /poweron";
+      reply += ".\nTry /message, /clear or /next";
+
       myBot.sendMessage(msg, reply);                    // and send it
     }
   }
  else {    // Not an authorized user, send a message indicating unauthorized access
-        myBot.sendMessage(msg, "Unauthorized access. You are not allowed to perform this action.");
-    }
+   String reply;
+      reply = "NOT WELCOME:\n" ;
+      reply += msg.sender.username + " " + msg.sender.firstName + " " + msg.sender.lastName + " " + msg.sender.id;
+      reply += ".\nis not allowed to use this bot";
+      myBot.sendMessage(msg, reply);     
+       }
   }
  }

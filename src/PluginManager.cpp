@@ -145,12 +145,26 @@ void PluginManager::runActivePlugin()
         modeButtonState = digitalRead(PIN_BUTTON);
         if (modeButtonState != lastModeButtonState && modeButtonState == HIGH)
         {
-                lastDebounceTime = millis();
-
             pluginManager.activateNextPlugin();
         }
         lastModeButtonState = modeButtonState;
         currentStatus = NONE;
+/*
+        modeButtonState = digitalRead(PIN_BUTTON);
+        if(lastModeButtonState == LOW && modButtonState == HIGH)                     // button is pressed
+            pressedTime = millis();
+        else if(lastModeButtonState == HIGH && modButtonState == LOW) {              // button is released
+            releasedTime = millis();
+        lastModeButtonState = modeButtonState;
+        currentStatus = NONE;
+
+        if ((releastdTime - passedTime) < 1000) {
+            pluginManager.activateNextPlugin();
+        } else if ((releastdTime - passedTime) > 2000) {
+        }
+
+    }
+*/
     }
     if (activePlugin)
     {
@@ -158,7 +172,6 @@ void PluginManager::runActivePlugin()
         {
             activePlugin->loop();
         }
- 
     }
 } 
 

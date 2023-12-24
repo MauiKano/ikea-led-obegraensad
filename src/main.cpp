@@ -279,12 +279,18 @@ void loop()
  lastPwrButtonState = pwrButtonState;
  micValue = analogRead(MIC_INPUT) - 2800;
  Serial.println(micValue);
- #endif  
   
   if (currentStatus != POWEROFF) {
      Messages.scrollMessageEveryMinute();
     pluginManager.runActivePlugin();
   }
+#endif 
+
+#ifndef FREKVENS
+  Messages.scrollMessageEveryMinute();
+  pluginManager.runActivePlugin();
+#endif
+
   if (alwaysRunPlugin) {
      alwaysRunPlugin->loop();
   }
