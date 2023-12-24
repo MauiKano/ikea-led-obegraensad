@@ -1,0 +1,33 @@
+#pragma once
+
+#include "PluginManager.h"
+#include "AudioTools.h"
+#include "AudioLibs/AudioRealFFT.h" // or AudioKissFFT
+
+ 
+
+class FFTPlugin : public Plugin {
+public:
+    FFTPlugin();
+    ~FFTPlugin() override;
+
+    void setup() override;
+    void loop() override;
+    const char* getName() const override;
+
+    void teardown() override; // optional
+    void websocketHook(DynamicJsonDocument &request) override; // optional
+    void fftResult(AudioFFTBase &fft);
+
+private:
+    AudioRealFFT      fft; // or any other supported inplementation
+    AnalogAudioStream Micadc; // Declare Micadc as an external instance
+    AudioInfo cfgRxM; // Declare cfgRxM as an external variable
+    StreamCopy copierMic2FFT(AudioRealFFT fft, AnalogAudioStream Micadc) ;
+//    extern   StreamCopy;
+ //   extern   ConverterAutoCenter; // set avg to 0
+    int channels = 2;
+    int samples_per_second = 44100;
+    int bits_per_sample = 16;
+    float value=0;
+};

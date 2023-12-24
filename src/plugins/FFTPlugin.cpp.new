@@ -1,0 +1,128 @@
+#include "plugins/FFTPlugin.h"
+
+//StreamCopy copierMic2FFT(fft, Micadc);
+//StreamCopy copier(fft, kit);  // copy mic to tfl
+
+//ConverterAutoCenter<int16_t> Miccenter(2); // set avg to 0
+FFTPlugin::FFTPlugin() {
+    // Constructor logic, if needed
+}
+
+void FFTPlugin::setup() {
+   // extern AnalogAudioStream Micadc;
+
+    AudioLogger::instance().begin(Serial, AudioLogger::Warning);
+   cfgRxM = Micadc.defaultConfig(RX_MODE);
+
+    auto cfgRxM = Micadc.defaultConfig(RX_MODE);
+    cfgRxM.sample_rate = 8192;
+    cfgRxM.channels = 1;
+    cfgRxM.setInputPin1(MIC_INPUT);
+    Micadc.begin(cfgRxM);
+
+  // Setup FFT
+     auto tcfg = fft.defaultConfig();
+     tcfg.length = samples_per_second;
+     tcfg.channels = 1;
+     tcfg.sample_rate = samples_per_second;
+     tcfg.bits_per_sample = 16;
+     tcfg.callback = &FFTPlugin::fftResult;
+     fft.begin(tcfg);
+  
+     copierMic2FFT.begin();
+  }
+
+void FFTPlugin::loop() {
+     copierMic2FFT.copy();
+}
+
+const char* FFTPlugin::getName() const {
+    return "FFTPlugin"; // name in GUI
+}
+
+void FFTPlugin::teardown() {
+  // code if plugin gets deactivated
+}
+
+void FFTPlugin::websocketHook(DynamicJsonDocument &request) {
+  // handle websocket requests
+}
+
+void FFTPlugin::fftResult(AudioFFTBase &fft) {   // call back routine of FFT
+   float diff;
+    auto result = fft.result();
+    if (result.magnitude>100){
+        Serial.print(result.frequency);
+        Serial.print(" ");
+        Serial.print(result.magnitude);  
+        Serial.print(" => ");
+        Serial.print(result.frequencyAsNote(diff));
+        Serial.print( " diff: ");
+        Serial.println(diff);
+    }
+}
+
+/*
+void FFTPlugin::fftResult(AudioFFTBase &fft) {   // call back routine of FFT
+    static float mTreshold, fTreshold;
+    static int ScaleFactor = 400000;
+    float  m,f;
+    auto result  = fft.result();
+    m = result.magnitude; f = result.frequency;
+ //   Serial.print("fftResult BEGIN m = "); Serial.println(m);
+
+    if (m > 100){
+        if (abs(m - mAvg) > mTreshold) { // current magnitude above average magnitude
+          mBpm++;
+        }
+        if (abs(f - fAvg) > fTreshold)  { // current frequency above average frequency
+          fBpm++;
+        }
+        mBufA[ixa] = m;
+        fBufA[ixa] = f;
+        ixa++;
+        if (ixa == nrA) {
+          ixa = 0;
+          mBufB[ixb] = MyAvg(&mBufA[0],nrA);
+          fBufB[ixb] = MyAvg(&fBufA[0],nrA);
+          ixb++;
+        }
+        if (ixb == nrB) {
+          mAvg = MyAvg(&mBufB[0],nrB);  fAvg = MyAvg(&fBufB[0],nrB);
+          mTreshold = mAvg/2;
+          fTreshold = fAvg/2;
+
+          mBpmPrev = (1000*mBpm)/TimePerBPM; fBpmPrev = (1000*fBpm)/TimePerBPM;
+          mBpm     = 0;    fBpm     = 0;
+          ixb = 0;
+
+        }
+        /// m in the range of 30'000 .. 8'000'000
+        ScaledFFTVal = ScaleFFTMagnitudeToMachine(MyAvg(&mBufA[0],nrA)/ScaleFactor, mAvg); // scale to 0..255
+
+   Serial.print("m:");  Serial.print(m/ScaleFactor);     Serial.print(",");
+   Serial.print("mA:"); Serial.print(MyAvg(&mBufA[0],nrA)/ScaleFactor); Serial.print(",");
+   Serial.print("mB:"); Serial.print(mAvg/ScaleFactor);             Serial.print(",");
+   Serial.print("S:");  Serial.print(ScaledFFTVal); //Serial.print(",");
+
+ //   SetMachine(ScaledFFTVal);
+    DisplayUpdateNeeded = true;
+
+//   Serial.print("f:");  Serial.print(f);         // Serial.print(",");
+ //  Serial.print("fA:"); Serial.print(MyAvg(&fBufA[0],nrA));      Serial.print(",");
+ //  Serial.print("fB:"); Serial.print(fAvg); Serial.print(",");
+
+ //  Serial.print("mBpm:"); Serial.print(mBpmPrev); Serial.print(",");
+ //  Serial.print("fbpm:"); Serial.print(fBpmPrev); //Serial.print(",");
+//   Serial.print("Tbpm:"); Serial.print(TimePerBPM); Serial.print(",");
+//   Serial.print("TFFT:"); Serial.print(TimePerFFT); //Serial.print(",");
+
+   Serial.print("\r\n");
+
+    } else {
+      mBufA[ixa] = 0;
+            fBufA[ixa] = 0;
+      ixa = (ixa + 1) % nrA;
+    }
+}
+*/

@@ -22,13 +22,14 @@
 #include "plugins/RainPlugin.h"
 #include "plugins/SnakePlugin.h"
 #include "plugins/StarsPlugin.h"
-#include "plugins/PongClockPlugin.h"
+//#include "plugins/PongClockPlugin.h"
 #include "plugins/FiveLetterWordsPlugin.h"
-
-
+ #ifdef FREKVENS
+// #include "plugins/BlankPlugin.h"
+#endif
 #ifdef ENABLE_SERVER
 #include "plugins/AnimationPlugin.h"
-#include "plugins/BigClockPlugin.h"
+//#include "plugins/BigClockPlugin.h"
 //#include "plugins/ClockPlugin.h"
 #include "plugins/TickingClockPlugin.h"
 #include "plugins/TickingSmallClockPlugin.h"
@@ -47,6 +48,12 @@
 unsigned long previousMillis = 0;
 unsigned long interval = 30000;
 
+#ifdef FREKVENS
+ int pwrButtonState = 0;
+ int lastPwrButtonState = 1;
+ int micValue = 0;
+ #endif
+ 
 PluginManager pluginManager;
 SYSTEM_STATUS currentStatus = NONE;
 #ifdef ESP32
@@ -197,6 +204,7 @@ void setup()
   pinMode(PIN_PIR, INPUT);
   #ifdef FREKVENS
    pinMode(PIN_POWER, INPUT_PULLUP);
+   pinMode(MIC_INPUT, INPUT);
  #endif
 
 // server
@@ -222,9 +230,9 @@ void setup()
   pluginManager.addPlugin(new CirclePlugin());
   pluginManager.addPlugin(new RainPlugin());
   pluginManager.addPlugin(new FireworkPlugin());
-  pluginManager.addPlugin(new PongClockPlugin());
+  //pluginManager.addPlugin(new PongClockPlugin());
   pluginManager.addPlugin(new FiveLetterWordsPlugin());
-  // pluginManager.addPlugin(new BlankPlugin());
+  //pluginManager.addPlugin(new BlankPlugin());
 
 #ifdef ENABLE_SERVER
   //pluginManager.addPlugin(new BigClockPlugin());
@@ -242,15 +250,41 @@ void setup()
 #ifdef ESP32
   setupPirTimer();
 #endif
- // Messages.add(WiFi.localIP().toString().c_str());
+  Messages.add(WiFi.localIP().toString().c_str());
+  Messages.scroll();
   Messages.add("Wellcome :-)");
+  Messages.scroll();
 }
 
 void loop()
 {
-  Messages.scrollMessageEveryMinute();
-
-  pluginManager.runActivePlugin();
+  #ifdef FREKVENS
+  pwrButtonState = digitalRead(PIN_POWER);
+  if (pwrButtonState != lastPwrButtonState && pwrButtonState == HIGH)
+  {
+    Serial.println("Powerbutton pressed, set status POWEROFF");
+    if (currentStatus == POWEROFF) {
+      currentStatus = NONE;
+      Serial.println("Powerbutton pressed, set status from POWEROFF to NONE");
+      Messages.add("Wellcome back");
+      Messages.scroll();
+    } else {
+      currentStatus = POWEROFF;
+      Serial.println("Powerbutton pressed, set status from NONE to POWEROFF");
+      Messages.add("Goodbye :-(");
+      Messages.scroll();
+      Screen.clear();
+    }
+ }
+ lastPwrButtonState = pwrButtonState;
+ micValue = analogRead(MIC_INPUT) - 2800;
+ Serial.println(micValue);
+ #endif  
+  
+  if (currentStatus != POWEROFF) {
+     Messages.scrollMessageEveryMinute();
+    pluginManager.runActivePlugin();
+  }
   if (alwaysRunPlugin) {
      alwaysRunPlugin->loop();
   }

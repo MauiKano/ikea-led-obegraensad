@@ -9,8 +9,11 @@
  }
 
  void BlankPlugin::loop()
- {
-
+ {/*
+     Screen.clear();
+     Screen.setBrightness(0);  // dim the screen after  the timer expired
+     delay(100);
+     */
  }
 
  void BlankPlugin::update()

@@ -111,9 +111,32 @@ void PluginManager::setupActivePlugin()
 int modeButtonState = 0;
 int lastModeButtonState = 1;
 #ifdef FREKVENS
- int pwrButtonState = 0;
- int lastPwrButtonState = 1;
+ //int pwrButtonState = 0;
+ //int lastPwrButtonState = 1;
  #endif
+ /*
+ 
+ int currentState = digitalRead(BUTTON_PIN);
+
+  if (lastState == HIGH && currentState == LOW)       // button is pressed
+    pressedTime = millis();
+  else if (lastState == LOW && currentState == HIGH) { // button is released
+    releasedTime = millis();
+
+    long pressDuration = releasedTime - pressedTime;
+
+    if ( pressDuration < SHORT_PRESS_TIME )
+      ledcWrite(0, 0);
+      digitalWrite(MOTOR_PIN, LOW);
+      Serial.println("A short press is detected DO NOT SEND NOTIFICATIONS");
+
+    if ( pressDuration > LONG_PRESS_TIME )
+      Serial.println("A long press is detected");
+      ledcWriteNote(TONE_PWM_CHANNEL, NOTE_C, 4);
+      digitalWrite(MOTOR_PIN, HIGH);
+      delay(500);
+      } 
+ */
 
 void PluginManager::runActivePlugin()
 {
@@ -122,22 +145,12 @@ void PluginManager::runActivePlugin()
         modeButtonState = digitalRead(PIN_BUTTON);
         if (modeButtonState != lastModeButtonState && modeButtonState == HIGH)
         {
+                lastDebounceTime = millis();
+
             pluginManager.activateNextPlugin();
         }
         lastModeButtonState = modeButtonState;
-
-        #ifdef FREKVENS
-         pwrButtonState = digitalRead(PIN_POWER);
-         if (pwrButtonState != lastPwrButtonState && pwrButtonState == HIGH)
-         {
-             pluginManager.setActivePlugin("Blank");
-             pluginManager.runActivePlugin();
-         }
-         lastPwrButtonState = pwrButtonState;
-       #endif    
-
         currentStatus = NONE;
-
     }
     if (activePlugin)
     {
@@ -145,8 +158,10 @@ void PluginManager::runActivePlugin()
         {
             activePlugin->loop();
         }
+ 
     }
-}
+} 
+
 
 Plugin *PluginManager::getActivePlugin() const
 {
