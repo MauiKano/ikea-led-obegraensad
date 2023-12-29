@@ -25,7 +25,7 @@
 //#include "plugins/PongClockPlugin.h"
 #include "plugins/FiveLetterWordsPlugin.h"
  #ifdef FREKVENS
-// #include "plugins/BlankPlugin.h"
+///#include "plugins/FFTPlugin.h"  // does not yet work
 #endif
 #ifdef ENABLE_SERVER
 #include "plugins/AnimationPlugin.h"
@@ -33,6 +33,7 @@
 //#include "plugins/ClockPlugin.h"
 #include "plugins/TickingClockPlugin.h"
 #include "plugins/TickingSmallClockPlugin.h"
+#include "plugins/BinaryClockPlugin.h"
 #include "plugins/WeatherPlugin.h"
 #include "plugins/TelegramBotPlugin.h"
 
@@ -232,7 +233,9 @@ void setup()
   pluginManager.addPlugin(new FireworkPlugin());
   //pluginManager.addPlugin(new PongClockPlugin());
   pluginManager.addPlugin(new FiveLetterWordsPlugin());
-  //pluginManager.addPlugin(new BlankPlugin());
+#ifdef FREKVENS
+ //  pluginManager.addPlugin(new FFTPlugin()); // does not yet work
+#endif
 
 #ifdef ENABLE_SERVER
   //pluginManager.addPlugin(new BigClockPlugin());
@@ -241,6 +244,7 @@ void setup()
   pluginManager.addPlugin(new AnimationPlugin());
   pluginManager.addPlugin(new TickingClockPlugin());
   pluginManager.addPlugin(new TickingSmallClockPlugin());
+  pluginManager.addPlugin(new BinaryClockPlugin());
  // pluginManager.addPlugin(new TelegramBotPlugin());
   alwaysRunPlugin = new TelegramBotPlugin();
   alwaysRunPlugin->setup();
@@ -252,7 +256,7 @@ void setup()
 #endif
   Messages.add(WiFi.localIP().toString().c_str());
   Messages.scroll();
-  Messages.add("Wellcome :-)");
+  Messages.add("Welcome :-)");
   Messages.scroll();
 }
 
@@ -266,7 +270,7 @@ void loop()
     if (currentStatus == POWEROFF) {
       currentStatus = NONE;
       Serial.println("Powerbutton pressed, set status from POWEROFF to NONE");
-      Messages.add("Wellcome back");
+      Messages.add("Welcome back");
       Messages.scroll();
     } else {
       currentStatus = POWEROFF;
@@ -277,8 +281,8 @@ void loop()
     }
  }
  lastPwrButtonState = pwrButtonState;
- micValue = analogRead(MIC_INPUT) - 2800;
- Serial.println(micValue);
+ micValue = analogRead(MIC_INPUT);
+ //if ((micValue > 4500) || (micValue < 500)) Serial.println(micValue);
   
   if (currentStatus != POWEROFF) {
      Messages.scrollMessageEveryMinute();

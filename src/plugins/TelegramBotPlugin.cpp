@@ -13,8 +13,8 @@ void TelegramBotPlugin::setup() {
         if (myBot.begin()) {
            Serial.println("Telegram Bot Connection OK");
            authorizedUserIds.push_back(TGID1);
+           authorizedUserIds.push_back(TGID2);
            authorizedUsernames.push_back(TGNAME1);
-
         }
         else
            Serial.println("Telegram Bot Connectionk NOK");

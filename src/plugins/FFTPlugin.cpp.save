@@ -7,33 +7,34 @@
 FFTPlugin::FFTPlugin() {
     // Constructor logic, if needed
 }
-
 void FFTPlugin::setup() {
-   // extern AnalogAudioStream Micadc;
-
+    Serial.println("setup FFTPlugin");
+  
     AudioLogger::instance().begin(Serial, AudioLogger::Warning);
-   cfgRxM = Micadc.defaultConfig(RX_MODE);
-
-    auto cfgRxM = Micadc.defaultConfig(RX_MODE);
+  
+    cfgRxM = Micadc.defaultConfig(RX_MODE);
     cfgRxM.sample_rate = 8192;
     cfgRxM.channels = 1;
     cfgRxM.setInputPin1(MIC_INPUT);
-    Micadc.begin(cfgRxM);
-
+   // Micadc.begin(cfgRxM);
   // Setup FFT
-     auto tcfg = fft.defaultConfig();
-     tcfg.length = samples_per_second;
+     tcfg = fft.defaultConfig();
+     tcfg.length = 2048;
      tcfg.channels = 1;
-     tcfg.sample_rate = samples_per_second;
+     tcfg.sample_rate = 8192;
      tcfg.bits_per_sample = 16;
      tcfg.callback = &FFTPlugin::fftResult;
+     tcfg.window_function = new BufferedWindow(new Hamming());
      fft.begin(tcfg);
-  
-     copierMic2FFT.begin();
+     copierMic2FFT.begin(fft, Micadc);     
+     Serial.println("Finished setup FFTPlugin");
   }
 
 void FFTPlugin::loop() {
+     Micadc.begin(cfgRxM);
      copierMic2FFT.copy();
+//     Serial.println(".");
+     Micadc.end();
 }
 
 const char* FFTPlugin::getName() const {
@@ -51,6 +52,8 @@ void FFTPlugin::websocketHook(DynamicJsonDocument &request) {
 void FFTPlugin::fftResult(AudioFFTBase &fft) {   // call back routine of FFT
    float diff;
     auto result = fft.result();
+ //   Serial.println("fftResult called");
+
     if (result.magnitude>100){
         Serial.print(result.frequency);
         Serial.print(" ");
