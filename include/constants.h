@@ -4,7 +4,7 @@
 #define ENABLE_SERVER
 // enable to use led mapping for Frekvens instead of Obegränsad
  // https://www.ikea.com/de/de/p/frekvens-multibeleuchtung-led-schwarz-30420354/ 
-#define FREKVENS
+//#define FREKVENS
 
 #ifdef ESP32
 #define PIN_ENABLE GPIO_NUM_4// 7
@@ -16,9 +16,12 @@
 #endif
 
 #ifdef FREKVENS
- #define PIN_POWER GPIO_NUM_26
- #define MIC_INPUT GPIO_NUM_36
+ #define PIN_POWER  GPIO_NUM_26
+ #define PIN_PIR    GPIO_NUM_2 // 0 seems broken on my esp in my FREKVENS box
+ //#define MIC_INPUT GPIO_NUM_36
  #endif
+
+#define PIRBTE1619 0 // set to 1 if this pir sensor is used as it has reversed logig
 
 #ifdef ESP8266
 #define PIN_ENABLE 16

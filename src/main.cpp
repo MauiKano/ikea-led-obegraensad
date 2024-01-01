@@ -65,7 +65,7 @@ WiFiManager wifiManager;
 int modePirState;
 int lastModePirState;
 
-#define TIMER0_INTERVAL_MS        60   // initialize timer 1 with 60 seconds
+#define TIMER0_INTERVAL_MS        40   // initialize timer 1 with 60 seconds
 hw_timer_t *Pir_timer = timerBegin(1, ((256*256) - 1), true); // use timer 1 for PIR handling, scale down to 1MHz
 bool timerISRCalled = false;
 Plugin *alwaysRunPlugin;  // used to always run the TelegramBot in the main loop
@@ -106,6 +106,7 @@ void connectToWiFi()
 
   lastConnectionAttempt = millis();
 }
+
  void IRAM_ATTR PirEventHandler() {
   timerISRCalled = true; 
   Screen.setBrightness(1);  // dim the screen after  the timer expired
@@ -121,13 +122,20 @@ void setupPirTimer() {
     Screen.setBrightness(255);
 }
 
-void checkPir() {
+void checkPir(bool turnOn) {
   if (timerISRCalled) { // just simple print statement that should not happen in the ISR
+   //   Messages.add("I", 0, 0, 50); // repeat=0, id=0, delay=10
+   //   Messages.scroll();
     Serial.println("Timer ISR called");
     timerISRCalled = false;
   }
   modePirState = digitalRead(PIN_PIR);
-  if (modePirState != lastModePirState && modePirState == HIGH) {
+  if (PIRBTE1619) modePirState = !modePirState;
+
+  if ((modePirState != lastModePirState && modePirState == HIGH) || turnOn) {
+    // do it one more time
+    //  Messages.add("M", 0, 0, 50); // repeat=0, id=0, delay=10
+    //  Messages.scroll();
       Serial.println("Pir detected motion");
       Screen.setBrightness(255);  // turn display on
       timerAlarmEnable(Pir_timer);
@@ -203,9 +211,10 @@ void setup()
   pinMode(PIN_ENABLE, OUTPUT);
   pinMode(PIN_BUTTON, INPUT_PULLUP);
   pinMode(PIN_PIR, INPUT);
+
   #ifdef FREKVENS
    pinMode(PIN_POWER, INPUT_PULLUP);
-   pinMode(MIC_INPUT, INPUT);
+  // pinMode(MIC_INPUT, INPUT);
  #endif
 
 // server
@@ -269,6 +278,7 @@ void loop()
     Serial.println("Powerbutton pressed, set status POWEROFF");
     if (currentStatus == POWEROFF) {
       currentStatus = NONE;
+      checkPir(true);
       Serial.println("Powerbutton pressed, set status from POWEROFF to NONE");
       Messages.add("Welcome back");
       Messages.scroll();
@@ -281,7 +291,7 @@ void loop()
     }
  }
  lastPwrButtonState = pwrButtonState;
- micValue = analogRead(MIC_INPUT);
+ //micValue = analogRead(MIC_INPUT);
  //if ((micValue > 4500) || (micValue < 500)) Serial.println(micValue);
   
   if (currentStatus != POWEROFF) {
@@ -299,7 +309,7 @@ void loop()
      alwaysRunPlugin->loop();
   }
 #ifdef ESP32
-   checkPir();
+   checkPir(false);
 #endif
   if (WiFi.status() != WL_CONNECTED && millis() - lastConnectionAttempt > connectionInterval)
   {
