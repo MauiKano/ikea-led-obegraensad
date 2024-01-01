@@ -130,7 +130,7 @@ void checkPir(bool turnOn) {
     timerISRCalled = false;
   }
   modePirState = digitalRead(PIN_PIR);
-  if (PIRBTE1619) modePirState = !modePirState;
+  if (PIRBTE1619 == 1) modePirState = !modePirState;
 
   if ((modePirState != lastModePirState && modePirState == HIGH) || turnOn) {
     // do it one more time
