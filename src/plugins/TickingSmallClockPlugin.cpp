@@ -1,5 +1,37 @@
 #include "plugins/TickingSmallClockPlugin.h"
 
+// Function to get current time from either Internet or RTC
+/*
+tm TickingSmallClockPlugin::mytime() {
+  tm timeinfo;
+  if (WiFi.status() == WL_CONNECTED && getLocalTime(&timeinfo)) {
+    // Time from Internet
+    return timeinfo;
+  } else {
+    // Fallback to RTC
+    DateTime rtcTime = rtc.now();
+    timeinfo.tm_year = rtcTime.year() - 1900;
+    timeinfo.tm_mon = rtcTime.month() - 1;
+    timeinfo.tm_mday = rtcTime.day();
+    timeinfo.tm_hour = rtcTime.hour();
+    timeinfo.tm_min = rtcTime.minute();
+    timeinfo.tm_sec = rtcTime.second();
+    return timeinfo;
+  }
+}
+*/
+void TickingSmallClockPlugin::mytime(tm *ti) {
+
+    // Fallback to RTC
+    DateTime rtcTime = rtc.now();
+    ti->tm_year = rtcTime.year() - 1900;
+    ti->tm_mon = rtcTime.month() - 1;
+    ti->tm_mday = rtcTime.day();
+    ti->tm_hour = rtcTime.hour();
+    ti->tm_min = rtcTime.minute();
+    ti->tm_sec = rtcTime.second();
+}
+
 void TickingSmallClockPlugin::setup()
 {
   // loading screen
@@ -12,6 +44,18 @@ void TickingSmallClockPlugin::setup()
 
   previousMinutes = -1;
   previousHour = -1;
+
+   // #ifdef RTCINSTALLED
+ // SETUP RTC MODULE
+  if (! rtc.begin()) {
+    Serial.println("RTC module is NOT found");
+    Serial.flush();
+    while (1);
+  }
+  // automatically sets the RTC to the date & time on PC this sketch was compiled
+  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+//#endif
+
 }
 
 int XPosSeconds(int s) {
@@ -48,7 +92,10 @@ int YPosSeconds(int s) {
 
 void TickingSmallClockPlugin::loop()
 {
-  if (getLocalTime(&timeinfo))
+  mytime(&timeinfo);
+  if (true)
+ //   if (getLocalTime(&timeinfo))
+
   {
     if (previousHour != timeinfo.tm_hour || previousMinutes != timeinfo.tm_min)
     {

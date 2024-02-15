@@ -1,6 +1,9 @@
 #include <Arduino.h>
 #include <SPI.h>
 
+
+
+
 #ifdef ESP32
 #include <WiFiManager.h>
 #endif
@@ -46,6 +49,11 @@
 #include "websocket.h"
 #include "messages.h"
 
+
+#ifdef RTCINSTALLED
+#include <RTClib.h>
+#endif
+
 unsigned long previousMillis = 0;
 unsigned long interval = 30000;
 
@@ -70,6 +78,7 @@ hw_timer_t *Pir_timer = timerBegin(1, ((256*256) - 1), true); // use timer 1 for
 bool timerISRCalled = false;
 Plugin *alwaysRunPlugin;  // used to always run the TelegramBot in the main loop
 #endif
+
 
 unsigned long lastConnectionAttempt = 0;
 const unsigned long connectionInterval = 10000;
@@ -211,6 +220,7 @@ void setup()
   pinMode(PIN_ENABLE, OUTPUT);
   pinMode(PIN_BUTTON, INPUT_PULLUP);
   pinMode(PIN_PIR, INPUT);
+
 
   #ifdef FREKVENS
    pinMode(PIN_POWER, INPUT_PULLUP);

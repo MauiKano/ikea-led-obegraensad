@@ -21,7 +21,10 @@
  //#define MIC_INPUT GPIO_NUM_36
  #endif
 
+#define RTCINSTALLED
+
 #define PIRBTE1619 0 // set to 1 if this pir sensor is used as it has reversed logig
+
 
 #ifdef ESP8266
 #define PIN_ENABLE 16
