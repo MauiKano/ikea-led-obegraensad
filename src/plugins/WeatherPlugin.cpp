@@ -19,11 +19,18 @@ void WeatherPlugin::setup()
     this->lastUpdate = millis();
     this->update();
     currentStatus = NONE;
+
+    // set the watchdog timer to 20 seconds in order to prevent its triggering while reading slow weather data
+   // rtc_wdt_protect_off();    // Turns off the automatic wdt service
+   // rtc_wdt_enable();         // Turn it on manually
+   // rtc_wdt_set_time(RTC_WDT_STAGE0, 5000);  // Define how long you desire to let dog wait.
+    Serial.println("setup weather finished");
+
 }
 
 void WeatherPlugin::loop()
 {
-    if (millis() >= this->lastUpdate + (1000 * 60 * 30))
+    if (millis() >= this->lastUpdate + (1000 * 60 * 1))
     {
         this->update();
         this->lastUpdate = millis();
@@ -35,6 +42,7 @@ void WeatherPlugin::update()
 {
     String weatherApiString = "https://wttr.in/" + String(WEATHER_LOCATION) + "?format=j2&lang=en";
 #ifdef ESP32
+  //  http.setTimeout(5000); // 2 Seconds
     http.begin(weatherApiString);
 #endif
 #ifdef ESP8266
@@ -53,7 +61,9 @@ void WeatherPlugin::update()
         int weatherIcon = 0;
         int iconY = 1;
         int tempY = 10;
-
+        Serial.printf("weather temp=%d Icon=%d",temperature, weatherCode);
+        Serial.println();
+        
         if (std::find(thunderCodes.begin(), thunderCodes.end(), weatherCode) != thunderCodes.end())
         {
             weatherIcon = 1;
@@ -115,7 +125,8 @@ void WeatherPlugin::update()
             Screen.drawCharacter(9, tempY, Screen.readBytes(degreeSymbol), 4, 50);
             Screen.drawNumbers(3, tempY, {-temperature});
         }
-    }
+    } else {  Serial.println("http.GET NOT ok");
+}
 }
 
 const char *WeatherPlugin::getName() const

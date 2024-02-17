@@ -221,6 +221,9 @@ void setup()
   pinMode(PIN_BUTTON, INPUT_PULLUP);
   pinMode(PIN_PIR, INPUT);
 
+  pinMode(GPIO_NUM_21, OUTPUT); //I2C for RTC
+  pinMode(GPIO_NUM_22, OUTPUT);
+
 
   #ifdef FREKVENS
    pinMode(PIN_POWER, INPUT_PULLUP);

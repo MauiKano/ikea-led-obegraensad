@@ -13,13 +13,15 @@ private:
   int previousSecond;
 
 //#ifdef RTCINSTALLED
-RTC_DS3231 rtc;
+  RTC_DS3231 rtc;
+  DateTime rtcTime;
+
 //#endif
 
 public:
   void setup() override;
   void loop() override;
-  void mytime(tm *ti);
+  bool mytime(struct tm *ti);
 
   const char *getName() const override;
 };

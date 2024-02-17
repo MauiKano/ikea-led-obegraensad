@@ -2,6 +2,7 @@
 
 #ifdef ESP32
 #include <HTTPClient.h>
+#include "soc/rtc_wdt.h"  // used to set the watchdog timer manually
 #endif
 #ifdef ESP8266
 #include <ESP8266HTTPClient.h>

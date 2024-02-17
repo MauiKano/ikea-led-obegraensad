@@ -1,37 +1,54 @@
 #include "plugins/TickingSmallClockPlugin.h"
 
 // Function to get current time from either Internet or RTC
-/*
-tm TickingSmallClockPlugin::mytime() {
-  tm timeinfo;
-  if (WiFi.status() == WL_CONNECTED && getLocalTime(&timeinfo)) {
+
+bool TickingSmallClockPlugin::mytime(struct tm *ti) {
+//  if (WiFi.status() == WL_CONNECTED && getLocalTime(ti)) {
+ if (false) {
+
     // Time from Internet
-    return timeinfo;
+      rtc.adjust(DateTime(ti->tm_year, ti->tm_mon, ti->tm_mday, ti->tm_hour, ti->tm_min, ti->tm_sec));
+
+    return true;
   } else {
-    // Fallback to RTC
-    DateTime rtcTime = rtc.now();
-    timeinfo.tm_year = rtcTime.year() - 1900;
-    timeinfo.tm_mon = rtcTime.month() - 1;
-    timeinfo.tm_mday = rtcTime.day();
-    timeinfo.tm_hour = rtcTime.hour();
-    timeinfo.tm_min = rtcTime.minute();
-    timeinfo.tm_sec = rtcTime.second();
-    return timeinfo;
+     // Fallback to RTC
+    uint32_t start = millis();
+    while((millis()-start) <= 5000) {
+        rtcTime = rtc.now();
+        ti->tm_year = rtcTime.year() - 1900;
+        ti->tm_mon = rtcTime.month() - 1;
+        ti->tm_mday = rtcTime.day();
+        ti->tm_hour = rtcTime.hour();
+        ti->tm_min = rtcTime.minute();
+        ti->tm_sec = rtcTime.second();
+        Serial.printf("%d:%d:%d",ti->tm_hour, ti->tm_min, ti->tm_sec);
+        Serial.println();
+        return true;
+    }
+    return false;
   }
 }
-*/
-void TickingSmallClockPlugin::mytime(tm *ti) {
+/*
+bool TickingSmallClockPlugin::mytime(struct tm *ti) {
 
     // Fallback to RTC
-    DateTime rtcTime = rtc.now();
-    ti->tm_year = rtcTime.year() - 1900;
-    ti->tm_mon = rtcTime.month() - 1;
-    ti->tm_mday = rtcTime.day();
-    ti->tm_hour = rtcTime.hour();
-    ti->tm_min = rtcTime.minute();
-    ti->tm_sec = rtcTime.second();
+    uint32_t start = millis();
+    while((millis()-start) <= 5000) {
+        DateTime rtcTime = rtc.now();
+        ti->tm_year = rtcTime.year() - 1900;
+        ti->tm_mon = rtcTime.month() - 1;
+        ti->tm_mday = rtcTime.day();
+        ti->tm_hour = rtcTime.hour();
+        ti->tm_min = rtcTime.minute();
+        ti->tm_sec = rtcTime.second();
+        
+      //  Serial.printf("%d:%d:%d",ti->tm_hour, ti->tm_min, ti->tm_sec);
+      //  Serial.println();
+        return true;
+    }
+    return false;
 }
-
+*/
 void TickingSmallClockPlugin::setup()
 {
   // loading screen
@@ -53,7 +70,7 @@ void TickingSmallClockPlugin::setup()
     while (1);
   }
   // automatically sets the RTC to the date & time on PC this sketch was compiled
-  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+ /// rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
 //#endif
 
 }
@@ -92,11 +109,12 @@ int YPosSeconds(int s) {
 
 void TickingSmallClockPlugin::loop()
 {
-  mytime(&timeinfo);
-  if (true)
+  if (mytime(&timeinfo)) 
+
  //   if (getLocalTime(&timeinfo))
 
   {
+  
     if (previousHour != timeinfo.tm_hour || previousMinutes != timeinfo.tm_min)
     {
       Screen.clear();
@@ -121,6 +139,7 @@ void TickingSmallClockPlugin::loop()
 
       previousSecond =  timeinfo.tm_sec;
     }
+  
   }
 }
 
