@@ -2,6 +2,7 @@
 #include "secrets.h"
 #include "messages.h"
 
+#ifdef ENABLE_SERVER
 TelegramBotPlugin::TelegramBotPlugin() : myBot(client, 2048) {}
 ///TelegramBotPlugin::TelegramBotPlugin() : myBot(WiFiClientSecure(), 2048) {}
 
@@ -121,3 +122,4 @@ void TelegramBotPlugin::websocketHook(DynamicJsonDocument &request) {
        }
   }
  }
+#endif

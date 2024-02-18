@@ -1,7 +1,8 @@
 #pragma once
 
 // disable if you do not want to have online functionality
-#define ENABLE_SERVER
+/////#define ENABLE_SERVER
+
 // enable to use led mapping for Frekvens instead of Obegränsad
  // https://www.ikea.com/de/de/p/frekvens-multibeleuchtung-led-schwarz-30420354/ 
 //#define FREKVENS

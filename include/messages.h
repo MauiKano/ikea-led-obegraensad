@@ -42,5 +42,7 @@ public:
 
 extern Messages_ &Messages;
 
+#ifdef ENABLE_SERVER
 void handleMessage(AsyncWebServerRequest *request);
 void handleRemove(AsyncWebServerRequest *request);
+#endif

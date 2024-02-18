@@ -6,6 +6,7 @@
 #include "PluginManager.h"
 #include <WiFiClientSecure.h>  // Include WiFiClientSecure library for secure connection
 
+#ifdef ENABLE_SERVER
 
 
 class TelegramBotPlugin : public Plugin {
@@ -30,3 +31,4 @@ public:
         TelegramBotPlugin();
 
 };
+#endif

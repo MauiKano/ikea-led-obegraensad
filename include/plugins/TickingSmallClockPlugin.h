@@ -3,6 +3,9 @@
 #include "PluginManager.h"
 #include <RTClib.h>
 
+extern RTC_DS3231 rtc;
+extern DateTime rtcTime;
+
 class TickingSmallClockPlugin : public Plugin
 {
 private:
@@ -13,8 +16,8 @@ private:
   int previousSecond;
 
 //#ifdef RTCINSTALLED
-  RTC_DS3231 rtc;
-  DateTime rtcTime;
+  //RTC_DS3231 rtc;
+  //DateTime rtcTime;
 
 //#endif
 

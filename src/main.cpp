@@ -1,9 +1,6 @@
 #include <Arduino.h>
 #include <SPI.h>
 
-
-
-
 #ifdef ESP32
 #include <WiFiManager.h>
 #endif
@@ -25,6 +22,8 @@
 #include "plugins/RainPlugin.h"
 #include "plugins/SnakePlugin.h"
 #include "plugins/StarsPlugin.h"
+#include "plugins/TickingClockPlugin.h"
+#include "plugins/TickingSmallClockPlugin.h"
 //#include "plugins/PongClockPlugin.h"
 #include "plugins/FiveLetterWordsPlugin.h"
  #ifdef FREKVENS
@@ -34,8 +33,7 @@
 #include "plugins/AnimationPlugin.h"
 //#include "plugins/BigClockPlugin.h"
 //#include "plugins/ClockPlugin.h"
-#include "plugins/TickingClockPlugin.h"
-#include "plugins/TickingSmallClockPlugin.h"
+
 #include "plugins/BinaryClockPlugin.h"
 #include "plugins/WeatherPlugin.h"
 #include "plugins/TelegramBotPlugin.h"
@@ -49,9 +47,10 @@
 #include "websocket.h"
 #include "messages.h"
 
-
 #ifdef RTCINSTALLED
 #include <RTClib.h>
+RTC_DS3231 rtc;
+DateTime rtcTime;
 #endif
 
 unsigned long previousMillis = 0;
@@ -62,7 +61,7 @@ unsigned long interval = 30000;
  int lastPwrButtonState = 1;
  int micValue = 0;
  #endif
- 
+
 PluginManager pluginManager;
 SYSTEM_STATUS currentStatus = NONE;
 #ifdef ESP32
@@ -76,7 +75,7 @@ int lastModePirState;
 #define TIMER0_INTERVAL_MS        40   // initialize timer 1 with 60 seconds
 hw_timer_t *Pir_timer = timerBegin(1, ((256*256) - 1), true); // use timer 1 for PIR handling, scale down to 1MHz
 bool timerISRCalled = false;
-Plugin *alwaysRunPlugin;  // used to always run the TelegramBot in the main loop
+Plugin *alwaysRunPlugin = NULL;  // used to always run the TelegramBot in the main loop
 #endif
 
 
@@ -86,9 +85,11 @@ const unsigned long connectionInterval = 10000;
 #ifdef ESP32
 void connectToWiFi()
 {
-  //wifiManager.resetSettings(); // wipe stored credentials for testing
+   //wifiManager.resetSettings(); // wipe stored credentials for testing
   // if a WiFi setup AP was started, reboot is required to clear routes
   bool wifiWebServerStarted = false;
+  wifiManager.setTimeout(60);
+
   wifiManager.setWebServerCallback(
       [&wifiWebServerStarted]()
       { wifiWebServerStarted = true; });
@@ -240,11 +241,29 @@ void setup()
   initOTA(server);
   initWebsocketServer(server);
   initWebServer();
-#endif
+  #endif
+
+  #ifdef RTCINSTALLED
+  // SETUP RTC MODULE
+  if (! rtc.begin()) {
+    Serial.println("RTC module is NOT found");
+    Serial.flush();
+    while (1);
+  }
+  #endif
+
+  #ifdef ENABLE_SERVER
+  struct tm ti;
+  if (WiFi.status() == WL_CONNECTED && getLocalTime(&ti)) {
+    // Time from Internet
+      rtc.adjust(DateTime(ti.tm_year, ti.tm_mon, ti.tm_mday, ti.tm_hour, ti.tm_min, ti.tm_sec));
+  }
+  #endif
+
 
   Screen.setup();
-
-  pluginManager.addPlugin(new DrawPlugin());
+  pluginManager.addPlugin(new TickingClockPlugin());
+  pluginManager.addPlugin(new TickingSmallClockPlugin());
   pluginManager.addPlugin(new BreakoutPlugin());
   pluginManager.addPlugin(new SnakePlugin());
   pluginManager.addPlugin(new GameOfLifePlugin());
@@ -252,9 +271,10 @@ void setup()
   pluginManager.addPlugin(new LinesPlugin());
   pluginManager.addPlugin(new CirclePlugin());
   pluginManager.addPlugin(new RainPlugin());
-  pluginManager.addPlugin(new FireworkPlugin());
+  //pluginManager.addPlugin(new FireworkPlugin());
   //pluginManager.addPlugin(new PongClockPlugin());
-  pluginManager.addPlugin(new FiveLetterWordsPlugin());
+ // pluginManager.addPlugin(new FiveLetterWordsPlugin());
+
 #ifdef FREKVENS
  //  pluginManager.addPlugin(new FFTPlugin()); // does not yet work
 #endif
@@ -262,10 +282,11 @@ void setup()
 #ifdef ENABLE_SERVER
   //pluginManager.addPlugin(new BigClockPlugin());
   //pluginManager.addPlugin(new ClockPlugin());
+  // pluginManager.addPlugin(new DrawPlugin());
+
   pluginManager.addPlugin(new WeatherPlugin());
-  pluginManager.addPlugin(new AnimationPlugin());
-  pluginManager.addPlugin(new TickingClockPlugin());
-  pluginManager.addPlugin(new TickingSmallClockPlugin());
+  //pluginManager.addPlugin(new AnimationPlugin());
+
   pluginManager.addPlugin(new BinaryClockPlugin());
  // pluginManager.addPlugin(new TelegramBotPlugin());
   alwaysRunPlugin = new TelegramBotPlugin();
@@ -276,8 +297,12 @@ void setup()
 #ifdef ESP32
   setupPirTimer();
 #endif
+
+#ifdef ENABLE_SERVER
   Messages.add(WiFi.localIP().toString().c_str());
   Messages.scroll();
+#endif
+
   Messages.add("Welcome :-)");
   Messages.scroll();
 }
@@ -311,10 +336,11 @@ void loop()
      Messages.scrollMessageEveryMinute();
     pluginManager.runActivePlugin();
   }
-#endif 
+  #endif 
+
 
 #ifndef FREKVENS
-  Messages.scrollMessageEveryMinute();
+  //Messages.scrollMessageEveryMinute();
   pluginManager.runActivePlugin();
 #endif
 
@@ -324,13 +350,14 @@ void loop()
 #ifdef ESP32
    checkPir(false);
 #endif
+#ifdef ENABLE_SERVER
+
   if (WiFi.status() != WL_CONNECTED && millis() - lastConnectionAttempt > connectionInterval)
   {
     Serial.println("Lost connection to Wi-Fi. Reconnecting...");
     connectToWiFi();
   }
 
-#ifdef ENABLE_SERVER
   cleanUpClients();
 #endif
   delay(1);

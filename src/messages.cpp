@@ -1,5 +1,7 @@
 #include "messages.h"
 #include <SPI.h>
+#include "constants.h"
+
 
 using namespace std;
 
@@ -103,7 +105,9 @@ void Messages_::scrollMessageEveryMinute()
     }
 }
 
+
 Messages_ &Messages = Messages.getInstance();
+#ifdef ENABLE_SERVER
 
 // http://your-server/message?text=Hello&repeat=3&id=42&graph=1,2,3,4
 void handleMessage(AsyncWebServerRequest *request)
@@ -159,3 +163,4 @@ void handleRemove(AsyncWebServerRequest *request)
     // Send a response to the client
     request->send(200, "text/plain", "Message received");
 }
+#endif

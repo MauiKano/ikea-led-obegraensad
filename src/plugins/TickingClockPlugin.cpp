@@ -1,15 +1,6 @@
 #include "plugins/TickingClockPlugin.h"
 
 bool TickingClockPlugin::mytime(struct tm *ti) {
-//  if (WiFi.status() == WL_CONNECTED && getLocalTime(ti)) {
- if (false) {
-
-    // Time from Internet
-      rtc.adjust(DateTime(ti->tm_year, ti->tm_mon, ti->tm_mday, ti->tm_hour, ti->tm_min, ti->tm_sec));
-
-    return true;
-  } else {
-     // Fallback to RTC
     uint32_t start = millis();
     while((millis()-start) <= 5000) {
         rtcTime = rtc.now();
@@ -24,24 +15,12 @@ bool TickingClockPlugin::mytime(struct tm *ti) {
         return true;
     }
     return false;
-  }
 }
 
 void TickingClockPlugin::setup()
 {
   previousMinutes = -1;
   previousHour = -1;
-
-     // #ifdef RTCINSTALLED
- // SETUP RTC MODULE
-  if (! rtc.begin()) {
-    Serial.println("RTC module is NOT found");
-    Serial.flush();
-    while (1);
-  }
-  // automatically sets the RTC to the date & time on PC this sketch was compiled
- /// rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-//#endif
 }
 
 void TickingClockPlugin::loop()
@@ -64,10 +43,10 @@ void TickingClockPlugin::loop()
 
       Screen.clear();
 
-      Screen.drawCharacter(2, 0, Screen.readBytes(fonts[1].data[hh[0]]), 8, Screen.getCurrentBrightness());
-      Screen.drawCharacter(9, 0, Screen.readBytes(fonts[1].data[hh[1]]), 8, Screen.getCurrentBrightness());
-      Screen.drawCharacter(2, 9, Screen.readBytes(fonts[1].data[mm[0]]), 8, Screen.getCurrentBrightness());
-      Screen.drawCharacter(9, 9, Screen.readBytes(fonts[1].data[mm[1]]), 8, Screen.getCurrentBrightness());
+      Screen.drawCharacter(2, 0, Screen.readBytes(fonts[1].data[hh[0]]), 8); //, Screen.getCurrentBrightness());
+      Screen.drawCharacter(9, 0, Screen.readBytes(fonts[1].data[hh[1]]), 8); //, Screen.getCurrentBrightness());
+      Screen.drawCharacter(2, 9, Screen.readBytes(fonts[1].data[mm[0]]), 8); //, Screen.getCurrentBrightness());
+      Screen.drawCharacter(9, 9, Screen.readBytes(fonts[1].data[mm[1]]), 8); //, Screen.getCurrentBrightness());
       previousMinutes = timeinfo.tm_min;
       previousHour = timeinfo.tm_hour;
     }
