@@ -1,5 +1,22 @@
 #include "plugins/BinaryClockPlugin.h"
 
+bool BinaryClockPlugin::mytime(struct tm *ti) {
+    uint32_t start = millis();
+    while((millis()-start) <= 5000) {
+        rtcTime = rtc.now();
+        ti->tm_year = rtcTime.year() - 1900;
+        ti->tm_mon = rtcTime.month() - 1;
+        ti->tm_mday = rtcTime.day();
+        ti->tm_hour = rtcTime.hour();
+        ti->tm_min = rtcTime.minute();
+        ti->tm_sec = rtcTime.second();
+   //     Serial.printf("%d:%d:%d",ti->tm_hour, ti->tm_min, ti->tm_sec);
+   //     Serial.println();
+        return true;
+    }
+    return false;
+}
+
 void BinaryClockPlugin::setup()
 {
   previousHour = -1;
@@ -9,7 +26,7 @@ void BinaryClockPlugin::setup()
 
 void BinaryClockPlugin::loop()
 {
-  if (getLocalTime(&timeinfo))
+  if (mytime(&timeinfo))
   {
     if (previousMinutes != timeinfo.tm_sec || previousMinutes != timeinfo.tm_min || previousHour != timeinfo.tm_hour)
     {

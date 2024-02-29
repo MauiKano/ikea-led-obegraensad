@@ -24,6 +24,8 @@
 #include "plugins/StarsPlugin.h"
 #include "plugins/TickingClockPlugin.h"
 #include "plugins/TickingSmallClockPlugin.h"
+#include "plugins/BinaryClockPlugin.h"
+
 //#include "plugins/PongClockPlugin.h"
 #include "plugins/FiveLetterWordsPlugin.h"
  #ifdef FREKVENS
@@ -264,6 +266,7 @@ void setup()
   Screen.setup();
   pluginManager.addPlugin(new TickingClockPlugin());
   pluginManager.addPlugin(new TickingSmallClockPlugin());
+  pluginManager.addPlugin(new BinaryClockPlugin());
   pluginManager.addPlugin(new BreakoutPlugin());
   pluginManager.addPlugin(new SnakePlugin());
   pluginManager.addPlugin(new GameOfLifePlugin());

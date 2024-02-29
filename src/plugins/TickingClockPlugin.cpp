@@ -10,8 +10,8 @@ bool TickingClockPlugin::mytime(struct tm *ti) {
         ti->tm_hour = rtcTime.hour();
         ti->tm_min = rtcTime.minute();
         ti->tm_sec = rtcTime.second();
-        Serial.printf("%d:%d:%d",ti->tm_hour, ti->tm_min, ti->tm_sec);
-        Serial.println();
+    //    Serial.printf("%d:%d:%d",ti->tm_hour, ti->tm_min, ti->tm_sec);
+    //    Serial.println();
         return true;
     }
     return false;

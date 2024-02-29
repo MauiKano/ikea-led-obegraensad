@@ -1,6 +1,10 @@
 #pragma once
 
 #include "PluginManager.h"
+#include <RTClib.h>
+
+extern RTC_DS3231 rtc;
+extern DateTime rtcTime;
 
 class BinaryClockPlugin : public Plugin
 {
@@ -19,4 +23,5 @@ public:
   void setup() override;
   void loop() override;
   const char *getName() const override;
+  bool mytime(struct tm *ti);
 };
