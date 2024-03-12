@@ -1,7 +1,7 @@
 #include "plugins/TickingSmallClockPlugin.h"
 
 // Function to get current time from either Internet or RTC
-
+#ifdef RTCINSTALLED
 bool TickingSmallClockPlugin::mytime(struct tm *ti) {
      // Fallback to RTC
     uint32_t start = millis();
@@ -19,6 +19,7 @@ bool TickingSmallClockPlugin::mytime(struct tm *ti) {
     }
     return false;
 }
+#endif
 
 void TickingSmallClockPlugin::setup()
 {
@@ -68,9 +69,9 @@ int YPosSeconds(int s) {
 
 void TickingSmallClockPlugin::loop()
 {
-  if (mytime(&timeinfo)) 
+  ///if (mytime(&timeinfo))   /// use this when RTC clock is installed
 
-   // if (getLocalTime(&timeinfo))
+  if (getLocalTime(&timeinfo))
 
   {
   

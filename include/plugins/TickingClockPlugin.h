@@ -1,10 +1,11 @@
 #pragma once
 
 #include "PluginManager.h"
+#ifdef RTCINSTALLED
 #include <RTClib.h>
-
 extern RTC_DS3231 rtc;
 extern DateTime rtcTime;
+#endif
 
 class TickingClockPlugin : public Plugin
 {
@@ -14,10 +15,10 @@ private:
     int previousMinutes;
     int previousHour;
     int previousSecond;
-    //#ifdef RTCINSTALLED
-    // RTC_DS3231 rtc;
-    // DateTime rtcTime;
-
+/////#ifdef RTCINSTALLED
+  ////   rtc;
+  /////  DateTime rtcTime;
+/////#endif
 //#endif
 
 public:

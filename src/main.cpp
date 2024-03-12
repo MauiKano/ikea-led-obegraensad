@@ -224,9 +224,10 @@ void setup()
   pinMode(PIN_BUTTON, INPUT_PULLUP);
   pinMode(PIN_PIR, INPUT);
 
+#ifdef RTCINSTALLED
   pinMode(GPIO_NUM_21, OUTPUT); //I2C for RTC
   pinMode(GPIO_NUM_22, OUTPUT);
-
+#endif
 
   #ifdef FREKVENS
    pinMode(PIN_POWER, INPUT_PULLUP);
@@ -254,6 +255,8 @@ void setup()
   }
   #endif
 
+#ifdef RTCINSTALLED
+
   #ifdef ENABLE_SERVER
   struct tm ti;
   if (WiFi.status() == WL_CONNECTED && getLocalTime(&ti)) {
@@ -261,7 +264,7 @@ void setup()
       rtc.adjust(DateTime(ti.tm_year, ti.tm_mon, ti.tm_mday, ti.tm_hour, ti.tm_min, ti.tm_sec));
   }
   #endif
-
+#endif
 
   Screen.setup();
   pluginManager.addPlugin(new TickingClockPlugin());

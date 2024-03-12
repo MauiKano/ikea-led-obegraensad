@@ -1,5 +1,6 @@
 #include "plugins/BinaryClockPlugin.h"
 
+#ifdef RTCINSTALLED
 bool BinaryClockPlugin::mytime(struct tm *ti) {
     uint32_t start = millis();
     while((millis()-start) <= 5000) {
@@ -16,6 +17,7 @@ bool BinaryClockPlugin::mytime(struct tm *ti) {
     }
     return false;
 }
+#endif
 
 void BinaryClockPlugin::setup()
 {
@@ -26,7 +28,9 @@ void BinaryClockPlugin::setup()
 
 void BinaryClockPlugin::loop()
 {
-  if (mytime(&timeinfo))
+ //// if (mytime(&timeinfo))
+  if (getLocalTime(&timeinfo))
+
   {
     if (previousMinutes != timeinfo.tm_sec || previousMinutes != timeinfo.tm_min || previousHour != timeinfo.tm_hour)
     {

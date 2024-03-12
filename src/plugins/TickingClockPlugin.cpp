@@ -1,5 +1,6 @@
 #include "plugins/TickingClockPlugin.h"
 
+#ifdef RTCINSTALLED
 bool TickingClockPlugin::mytime(struct tm *ti) {
     uint32_t start = millis();
     while((millis()-start) <= 5000) {
@@ -16,6 +17,7 @@ bool TickingClockPlugin::mytime(struct tm *ti) {
     }
     return false;
 }
+#endif
 
 void TickingClockPlugin::setup()
 {
@@ -25,7 +27,9 @@ void TickingClockPlugin::setup()
 
 void TickingClockPlugin::loop()
 {
-  if (mytime(&timeinfo))
+  /// if (mytime(&timeinfo)) use this when RTC clock is installed
+  if (getLocalTime(&timeinfo))
+
   {
 
     if ((timeinfo.tm_hour * 60 + timeinfo.tm_min) < 6 * 60 + 30 ||
