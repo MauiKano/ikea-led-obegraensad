@@ -5,7 +5,7 @@
 
 // enable to use led mapping for Frekvens instead of Obegränsad
  // https://www.ikea.com/de/de/p/frekvens-multibeleuchtung-led-schwarz-30420354/ 
-//#define FREKVENS
+#define FREKVENS
 
 #ifdef ESP32
 #define PIN_ENABLE GPIO_NUM_4// 7
@@ -24,7 +24,8 @@
 
 ///#define RTCINSTALLED
 
-#define PIRBTE1619 0 // set to 1 if this pir sensor is used as it has reversed logig
+// 0 for big box, 1 for small box
+#define PIRBTE1619 1 // set to 1 if this pir sensor is used as it has reversed logig
 
 
 #ifdef ESP8266
