@@ -22,7 +22,7 @@
  //#define MIC_INPUT GPIO_NUM_36
  #endif
 
-///#define RTCINSTALLED
+#define RTCINSTALLED
 
 // 0 for big box, 1 for small box
 #define PIRBTE1619 1 // set to 1 if this pir sensor is used as it has reversed logig
