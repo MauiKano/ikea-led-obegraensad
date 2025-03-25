@@ -5,7 +5,7 @@
 
 // enable to use led mapping for Frekvens instead of Obegränsad
  // https://www.ikea.com/de/de/p/frekvens-multibeleuchtung-led-schwarz-30420354/ 
-#define FREKVENS
+//#define FREKVENS
 
 #ifdef ESP32
 #define PIN_ENABLE GPIO_NUM_4// 7
@@ -14,6 +14,8 @@
 #define PIN_LATCH  GPIO_NUM_25 //3
 #define PIN_BUTTON GPIO_NUM_27 // 1
 #define PIN_PIR    GPIO_NUM_0 // 1
+#define PIN_I2C_SDA GPIO_NUM_21
+#define PIN_I2C_SCL GPIO_NUM_22
 #endif
 
 #ifdef FREKVENS
@@ -22,10 +24,14 @@
  //#define MIC_INPUT GPIO_NUM_36
  #endif
 
-#define RTCINSTALLED
+//#define RTCINSTALLED
+//#define BME280INSTALLED // temperature, humidity, pressure sensor
+#define TPHINSTALLED //  only one of the two may be defined, temperature, humidity, pressure sensor
+#define ALTITUDE 430 // Altitude of your location in meters
+#define PIRINSTALLED // PIR sensor
 
 // 0 for big box, 1 for small box
-#define PIRBTE1619 1 // set to 1 if this pir sensor is used as it has reversed logig
+#define PIRBTE1619 0 // set to 1 if this pir sensor is used as it has reversed logig
 
 
 #ifdef ESP8266

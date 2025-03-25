@@ -1,6 +1,9 @@
 #include "asyncwebserver.h"
 #include "messages.h"
 #include "constants.h"
+#include "tandp.h"
+#include "TPHSensor.h"
+
 
 
 #ifdef ENABLE_SERVER
@@ -19,8 +22,10 @@ void initWebServer()
 
 // Route to handle  http://your-server/message?text=Hello&repeat=3&id=42&delay=30&graph=1,2,3,4&miny=0&maxy=15
   server.on("/message", HTTP_GET, handleMessage);
-
   server.on("/removemessage", HTTP_GET, handleRemove);
+  server.on("/temperature", HTTP_GET, handleTemperature);
+  server.on("/pressure", HTTP_GET, handlePressure);
+  server.on("/humidity", HTTP_GET, handleHumidity);
   server.begin();
 }
 

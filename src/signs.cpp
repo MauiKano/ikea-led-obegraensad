@@ -9,6 +9,7 @@ std::vector<int> letterR = {
 std::vector<int> degreeSymbol = {
     0x33, 0x00, 0x00};
 
+
 std::vector<int> minusSymbol = {
     0x00, 0xF0, 0x00};
 

@@ -1,6 +1,11 @@
 #pragma once
 
 #include "PluginManager.h"
+#ifdef BME280INSTALLED
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BMP280.h>
+#endif
+
 #ifdef RTCINSTALLED
 #include <RTClib.h>
 extern RTC_DS3231 rtc;

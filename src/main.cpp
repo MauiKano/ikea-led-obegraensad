@@ -49,6 +49,13 @@
 #include "websocket.h"
 #include "messages.h"
 
+#ifdef BME280INSTALLED
+#include "tandp.h"
+#endif
+#ifdef TPHINSTALLED
+#include "TPHSensor.h"
+#endif
+
 #ifdef RTCINSTALLED
 #include <RTClib.h>
 RTC_DS3231 rtc;
@@ -79,7 +86,6 @@ hw_timer_t *Pir_timer = timerBegin(1, ((256*256) - 1), true); // use timer 1 for
 bool timerISRCalled = false;
 Plugin *alwaysRunPlugin = NULL;  // used to always run the TelegramBot in the main loop
 #endif
-
 
 unsigned long lastConnectionAttempt = 0;
 const unsigned long connectionInterval = 10000;
@@ -155,7 +161,6 @@ void checkPir(bool turnOn) {
   }
   lastModePirState = modePirState;
 }
-
 #endif
 
 #ifdef ESP8266
@@ -223,6 +228,17 @@ void setup()
   pinMode(PIN_ENABLE, OUTPUT);
   pinMode(PIN_BUTTON, INPUT_PULLUP);
   pinMode(PIN_PIR, INPUT);
+
+  #ifdef BME280INSTALLED
+  pinMode(PIN_I2C_SCL, OUTPUT);
+  pinMode(PIN_I2C_SDA, OUTPUT);
+  #endif
+
+
+  #ifdef TPHINSTALLED
+  pinMode(PIN_I2C_SCL, OUTPUT);
+  pinMode(PIN_I2C_SDA, OUTPUT);
+  #endif
 
 #ifdef RTCINSTALLED
   pinMode(GPIO_NUM_21, OUTPUT); //I2C for RTC
@@ -355,6 +371,7 @@ void loop()
   }
 #ifdef ESP32
    checkPir(false);
+  
 #endif
 #ifdef ENABLE_SERVER
 

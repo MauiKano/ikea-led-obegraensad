@@ -1,4 +1,6 @@
 #include "plugins/TickingClockPlugin.h"
+#include "tandp.h"
+#include "TPHSensor.h"
 
 #ifdef RTCINSTALLED
 bool TickingClockPlugin::mytime(struct tm *ti) {
@@ -19,10 +21,19 @@ bool TickingClockPlugin::mytime(struct tm *ti) {
 }
 #endif
 
+
 void TickingClockPlugin::setup()
 {
   previousMinutes = -1;
   previousHour = -1;
+  #ifdef BME280INSTALLED
+   tandp.initBME280();
+#endif
+
+#ifdef TPHINSTALLED
+tandpandh.initTPH();
+#endif
+
 }
 
 void TickingClockPlugin::loop()
@@ -31,7 +42,6 @@ void TickingClockPlugin::loop()
   if (getLocalTime(&timeinfo))
 
   {
-
     if ((timeinfo.tm_hour * 60 + timeinfo.tm_min) < 6 * 60 + 30 ||
         (timeinfo.tm_hour * 60 + timeinfo.tm_min) > 22 * 60 + 30) // only between 6:30 and 22:30
     {
@@ -44,6 +54,20 @@ void TickingClockPlugin::loop()
 
       std::vector<int> hh = {(timeinfo.tm_hour - timeinfo.tm_hour % 10) / 10, timeinfo.tm_hour % 10};
       std::vector<int> mm = {(timeinfo.tm_min - timeinfo.tm_min % 10) / 10, timeinfo.tm_min % 10};
+
+      #ifdef BME280INSTALLED
+      Screen.clear();
+      tandp.ShowTempAndPressure();
+      delay(3000);
+      #endif
+
+      #ifdef TPHINSTALLED
+      Screen.clear();
+      //tandpandh.ShowTempAndPressure();
+      tandpandh.ShowTempAndHumidity();
+      delay(3000);
+      #endif
+
 
       Screen.clear();
 
@@ -63,7 +87,6 @@ void TickingClockPlugin::loop()
         Screen.setPixel(timeinfo.tm_sec * 16 / 60, 7, 1, Screen.getCurrentBrightness());
       else
         Screen.setPixel(timeinfo.tm_sec * 16 / 60, 8, 1, Screen.getCurrentBrightness());
-
       previousSecond = timeinfo.tm_sec;
     }
   }
