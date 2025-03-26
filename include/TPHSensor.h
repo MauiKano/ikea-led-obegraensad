@@ -26,13 +26,15 @@ private:
 public:
 
   static TPHSensor &getInstance();
-  bool initTPH(); 
-  bool initBME280();
-  void readBME280(); 
-  bool initAHT10();
-  void readAHT10(); 
-  void ShowTempAndPressure() ;
-  void  ShowTempAndHumidity();
+  bool  initTPH(); 
+  bool  initBME280();
+  void  readBME280(); 
+  bool  initAHT10();
+  void  readAHT10(); 
+  void  readTPH(); 
+  void  ShowPressure(int delayMS) ;
+  void  ShowTempAndPressure(int delayMS) ;
+  void  ShowTempAndHumidity(int delayMS);
   float getTemperature();
   float getPressure();
   float getHumidity();

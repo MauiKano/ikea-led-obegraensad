@@ -91,18 +91,24 @@ void TPHSensor::readAHT10() {
     }
 }
 
+void TPHSensor::readTPH() {
+ readBME280();
+ readAHT10();
+}
 
 
 // Display adjustments
-int pressY = 1;
-int tempY = 9;
+int upperY = 1;
+int midY   = 5;
+int lowerY = 9;
 
-void TPHSensor::ShowTempAndPressure() {
+void TPHSensor::ShowTempAndPressure(int delayMS) {
     readBME280();
     readAHT10();
+    Screen.cacheCurrent();
+    Screen.clear();
     temperature = (ahttemperature + bmetemperature) / 2.0;
     int tempInt     = static_cast<int>(round(constrain(temperature, 0.0, 99.0)));  // limit to prevent overflow in display
-    int humInt      = static_cast<int>(round(constrain(humidity, 0.0, 99.0)));  // limit to prevent overflow in display
     int pressureInt = static_cast<int>(constrain(seaLevelPressure, 100.0, 2000.0));
     if (pressureInt >= 1000) {
         pressureInt = pressureInt - 1000;  // only 3 digits can be displayed, => subtract 1000
@@ -118,21 +124,43 @@ void TPHSensor::ShowTempAndPressure() {
 
     // Display Temperature
     if (tempInt >= 10) {
-        Screen.drawCharacter(9, tempY, Screen.readBytes(degreeSymbol), 4, 50);
-        Screen.drawNumbers(1, tempY, {tempTens, tempOnes});
+        Screen.drawCharacter(9, lowerY, Screen.readBytes(degreeSymbol), 4);
+        Screen.drawNumbers(1, lowerY, {tempTens, tempOnes});
     } else {
-        Screen.drawCharacter(7, tempY, Screen.readBytes(degreeSymbol), 4, 50);
-        Screen.drawNumbers(4, tempY, {tempOnes});
+        Screen.drawCharacter(7, lowerY, Screen.readBytes(degreeSymbol), 4);
+        Screen.drawNumbers(4, lowerY, {tempOnes});
     }
 
-    // Display Pressure
-    //Screen.drawNumbers(0, pressY, {pressThousands, pressHundreds, pressTens, pressOnes});
-    Screen.drawNumbers(0, pressY, {pressHundreds, pressTens, pressOnes});
+    Screen.drawNumbers(0, upperY, {pressHundreds, pressTens, pressOnes});
+    delay(delayMS);
+    Screen.restoreCache();
 }
 
-void TPHSensor::ShowTempAndHumidity() {
+void TPHSensor::ShowPressure(int delayMS) {
     readBME280();
     readAHT10();
+    Screen.cacheCurrent();
+    Screen.clear();
+    int pressureInt = static_cast<int>(constrain(seaLevelPressure, 100.0, 2000.0));
+    if (pressureInt >= 1000) {
+        pressureInt = pressureInt - 1000;  // only 3 digits can be displayed, => subtract 1000
+    }
+    
+    int pressThousands = pressureInt / 1000;
+    int pressHundreds = (pressureInt % 1000) / 100;
+    int pressTens = (pressureInt % 100) / 10;
+    int pressOnes = pressureInt % 10;
+
+    Screen.drawNumbers(0, midY, {pressThousands, pressHundreds, pressTens, pressOnes});
+    delay(delayMS);
+    Screen.restoreCache();
+}
+
+void TPHSensor::ShowTempAndHumidity(int delayMS) {
+    readBME280();
+    readAHT10();
+    Screen.cacheCurrent();
+    Screen.clear();
     temperature = (ahttemperature + bmetemperature) / 2.0;
     int tempInt     = static_cast<int>(round(constrain(temperature, 0.0, 99.0)));  // limit to prevent overflow in display
     int humInt      = static_cast<int>(round(constrain(humidity, 0.0, 99.0)));  // limit to prevent overflow in display
@@ -144,21 +172,24 @@ void TPHSensor::ShowTempAndHumidity() {
 
     // Display Temperature
     if (tempInt >= 10) {
-        Screen.drawCharacter(9, tempY, Screen.readBytes(degreeSymbol), 4, 50);
-        Screen.drawNumbers(1, tempY, {tempTens, tempOnes});
+        Screen.drawCharacter(9, lowerY, Screen.readBytes(degreeSymbol), 4);
+        Screen.drawNumbers(1, lowerY, {tempTens, tempOnes});
     } else {
-        Screen.drawCharacter(7, tempY, Screen.readBytes(degreeSymbol), 4, 50);
-        Screen.drawNumbers(4, tempY, {tempOnes});
+        Screen.drawCharacter(7, lowerY, Screen.readBytes(degreeSymbol), 4);
+        Screen.drawNumbers(4, upperY, {tempOnes});
     }
 
 // Display Humidity
-if (humInt >= 10) {
-    //Screen.drawCharacter(9, tempY, Screen.readBytes(percentSymbol), 4, 50);
-    Screen.drawNumbers(1, pressY, {humTens, humOnes});
-} else {
-    //Screen.drawCharacter(9, tempY, Screen.readBytes(percentSymbol), 4, 50);
-    Screen.drawNumbers(4, pressY, {humOnes});
-}
+    if (humInt >= 10) {
+        Screen.drawCharacter(11, upperY, Screen.readBytes(percentSymbol), 8);
+        Screen.drawNumbers(1, upperY, {humTens, humOnes});
+    } else {
+        Screen.drawCharacter(11, upperY, Screen.readBytes(percentSymbol), 8);
+        //Screen.drawCharacter(9, tempY, Screen.readBytes(percentSymbol), 4, 50);
+        Screen.drawNumbers(4, upperY, {humOnes});
+    }
+    delay(delayMS);
+    Screen.restoreCache();
 }
 
 // HTTP request handler

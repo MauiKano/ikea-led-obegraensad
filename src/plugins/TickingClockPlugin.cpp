@@ -62,12 +62,9 @@ void TickingClockPlugin::loop()
       #endif
 
       #ifdef TPHINSTALLED
-      Screen.clear();
-      //tandpandh.ShowTempAndPressure();
-      tandpandh.ShowTempAndHumidity();
-      delay(3000);
+      tandpandh.ShowTempAndHumidity(1000);
+      tandpandh.ShowPressure(1000);
       #endif
-
 
       Screen.clear();
 

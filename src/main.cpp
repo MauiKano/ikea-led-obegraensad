@@ -64,6 +64,7 @@ DateTime rtcTime;
 
 unsigned long previousMillis = 0;
 unsigned long interval = 30000;
+unsigned long loopCounter = 0;
 
 #ifdef FREKVENS
  int pwrButtonState = 0;
@@ -156,6 +157,10 @@ void checkPir(bool turnOn) {
     //  Messages.scroll();
       Serial.println("Pir detected motion");
       Screen.setBrightness(255);  // turn display on
+  #ifdef TPHINSTALLED
+      //tandpandh.ShowTempAndHumidity(1000);
+      //tandpandh.ShowPressure(1000);
+  #endif
       timerAlarmEnable(Pir_timer);
       timerStart(Pir_timer);
   }
@@ -232,12 +237,14 @@ void setup()
   #ifdef BME280INSTALLED
   pinMode(PIN_I2C_SCL, OUTPUT);
   pinMode(PIN_I2C_SDA, OUTPUT);
+  tandp.initBME280();
   #endif
 
 
   #ifdef TPHINSTALLED
   pinMode(PIN_I2C_SCL, OUTPUT);
   pinMode(PIN_I2C_SDA, OUTPUT);
+  tandpandh.initTPH();
   #endif
 
 #ifdef RTCINSTALLED
@@ -371,8 +378,14 @@ void loop()
   }
 #ifdef ESP32
    checkPir(false);
-  
 #endif
+
+#ifdef TPHINSTALLED
+  if (loopCounter == 0) {
+    tandpandh.readTPH(); // read  everz loopCountr ms interval temperature, pressure, and humidity
+  }
+#endif
+
 #ifdef ENABLE_SERVER
 
   if (WiFi.status() != WL_CONNECTED && millis() - lastConnectionAttempt > connectionInterval)
@@ -383,5 +396,6 @@ void loop()
 
   cleanUpClients();
 #endif
-  delay(1);
+  delay(1); // 1 ms
+  loopCounter = (loopCounter + 1) % 5000; // 5000 ms = 5 seconds , sensor measure intervall
 }

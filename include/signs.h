@@ -8,6 +8,7 @@ extern std::vector<int> letterU;
 extern std::vector<int> letterR;
 extern std::vector<int> degreeSymbol;
 extern std::vector<int> minusSymbol;
+extern std::vector<int> percentSymbol;
 
 
 extern std::vector<std::vector<int>> circleAnimation;
